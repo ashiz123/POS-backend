@@ -67,87 +67,95 @@ const userBusinessData = {
 
 const createdBy: string = "owner-123";
 
-describe("Create user test", () => {
-  let userService: IUserService;
-  container.clearInstances();
+describe("User service test", () => {
+  describe("Create user ", () => {
+    let userService: IUserService;
 
-  mockCryptoService = {
-    createToken: vi.fn(),
-    hashToken: vi.fn(),
-  };
+    beforeEach(() => {
+      vi.resetAllMocks();
 
-  mockUserBusinessRepo = {
-    canUserAccessBusiness: vi.fn(),
-    assignUserWithSession: vi.fn(),
-  };
+      container.clearInstances();
 
-  mockUserRespository = {
-    createUserWithSession: vi.fn(),
-  };
+      mockCryptoService = {
+        createToken: vi.fn(),
+        hashToken: vi.fn(),
+      };
 
-  mockSession = {
-    withTransaction: vi.fn().mockImplementation(async (fn) => {
-      return await fn();
-    }),
-    startTransaction: vi.fn(),
-    commitTransaction: vi.fn(),
-    abortTransaction: vi.fn(),
-    endSession: vi.fn(),
-  };
+      mockUserBusinessRepo = {
+        canUserAccessBusiness: vi.fn(),
+        assignUserWithSession: vi.fn(),
+      };
 
-  mockNotifyEmitter = {
-    notify: vi.fn(),
-    onNotification: vi.fn(),
-  };
+      mockUserRespository = {
+        createUserWithSession: vi.fn(),
+      };
 
-  beforeEach(() => {
-    container.registerInstance(TOKENS.USER_REPOSITORY, mockUserRespository);
-    container.registerInstance(
-      TOKENS.USER_BUSINESS_REPOSITORY,
-      mockUserBusinessRepo,
-    );
-    container.registerInstance(TOKENS.NOTIFICATION_EMITTER, mockNotifyEmitter);
-    container.registerInstance(TOKENS.CRYPTO_SERVICE, mockCryptoService);
-    userService = container.resolve(UserService);
-    vi.spyOn(mongoose, "startSession").mockResolvedValue(mockSession);
-  });
+      mockSession = {
+        withTransaction: vi.fn().mockImplementation(async (fn) => {
+          return await fn();
+        }),
+        startTransaction: vi.fn(),
+        commitTransaction: vi.fn(),
+        abortTransaction: vi.fn(),
+        endSession: vi.fn(),
+      };
 
-  it("should throw unauthorized user if canUserBusiness is false", async () => {
-    mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(false);
-    const result = userService.createUser(userData, createdBy);
-    expect(result).rejects.toThrow(
-      "User does not have right to access to the business",
-    );
-  });
+      mockNotifyEmitter = {
+        notify: vi.fn(),
+        onNotification: vi.fn(),
+      };
 
-  it("should call notify emitter and mongoose session works if new user is true ", async () => {
-    mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(true);
-    mockUserRespository.createUserWithSession.mockResolvedValue({
-      user: newUserData,
-      newUser: true,
-    } as any);
-    mockUserBusinessRepo.assignUserWithSession.mockResolvedValue(
-      userBusinessData,
-    );
+      container.registerInstance(TOKENS.USER_REPOSITORY, mockUserRespository);
+      container.registerInstance(
+        TOKENS.USER_BUSINESS_REPOSITORY,
+        mockUserBusinessRepo,
+      );
+      container.registerInstance(
+        TOKENS.NOTIFICATION_EMITTER,
+        mockNotifyEmitter,
+      );
+      container.registerInstance(TOKENS.CRYPTO_SERVICE, mockCryptoService);
+      userService = container.resolve(UserService);
+      vi.spyOn(mongoose, "startSession").mockResolvedValue(mockSession);
+    });
 
-    await userService.createUser(userData, createdBy);
-    expect(mockNotifyEmitter.notify).toHaveBeenCalled();
-    expect(mockSession.withTransaction).toHaveBeenCalled();
-    expect(mockSession.endSession).toHaveBeenCalled();
-  });
+    it("should throw unauthorized user if canUserBusiness is false", async () => {
+      mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(false);
+      const result = userService.createUser(userData, createdBy);
+      expect(result).rejects.toThrow(
+        "User does not have right to access to the business",
+      );
+    });
 
-  it("should not call notify emitter  if new user is false ", async () => {
-    mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(true);
-    mockUserRespository.createUserWithSession.mockResolvedValue({
-      user: newUserData,
-      newUser: false,
-    } as any);
-    mockUserBusinessRepo.assignUserWithSession.mockResolvedValue(
-      userBusinessData,
-    );
+    it("should call notify emitter and mongoose session works if new user is true ", async () => {
+      mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(true);
+      mockUserRespository.createUserWithSession.mockResolvedValue({
+        user: newUserData,
+        newUser: true,
+      } as any);
+      mockUserBusinessRepo.assignUserWithSession.mockResolvedValue(
+        userBusinessData,
+      );
 
-    await userService.createUser(userData, createdBy);
-    expect(mockNotifyEmitter.notify).not.toHaveBeenCalled();
+      await userService.createUser(userData, createdBy);
+      expect(mockNotifyEmitter.notify).toHaveBeenCalled();
+      expect(mockSession.withTransaction).toHaveBeenCalled();
+      expect(mockSession.endSession).toHaveBeenCalled();
+    });
+
+    it("should not call notify emitter  if new user is false ", async () => {
+      mockUserBusinessRepo.canUserAccessBusiness.mockResolvedValue(true);
+      mockUserRespository.createUserWithSession.mockResolvedValue({
+        user: newUserData,
+        newUser: false,
+      } as any);
+      mockUserBusinessRepo.assignUserWithSession.mockResolvedValue(
+        userBusinessData,
+      );
+
+      await userService.createUser(userData, createdBy);
+      expect(mockNotifyEmitter.notify).not.toHaveBeenCalled();
+    });
   });
 
   //working on this
