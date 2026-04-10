@@ -65,11 +65,17 @@ describe("Business service test", () => {
 
   let mockBusinessRepository: {
     createWithSession: MockInstance<IBusinessRepository["createWithSession"]>;
+    findAndUpdateByToken: MockInstance<
+      IBusinessRepository["findAndUpdateByToken"]
+    >;
   };
 
   let mockUserBusinessRepository: {
     assignUserWithSession: MockInstance<
       IUserBusinessRepository["assignUserWithSession"]
+    >;
+    findAndUpdateByUserIdWithSession: MockInstance<
+      IUserBusinessRepository["findAndUpdateByUserIdWithSession"]
     >;
   };
 
@@ -100,10 +106,12 @@ describe("Business service test", () => {
 
     mockBusinessRepository = {
       createWithSession: vi.fn(),
+      findAndUpdateByToken: vi.fn(),
     };
 
     mockUserBusinessRepository = {
       assignUserWithSession: vi.fn(),
+      findAndUpdateByUserIdWithSession: vi.fn(),
     };
 
     mockNotificationEmitter = {
@@ -163,6 +171,45 @@ describe("Business service test", () => {
       const result = businessService.create(newBusiness);
       await expect(result).rejects.toThrow(errorMessage);
       expect(mockSession.endSession).toHaveBeenCalled();
+    });
+  });
+
+  describe("Activate user test", () => {
+    const rawToken = "raw-token";
+    const hashedToken = "hashed-token";
+
+    it("should throw error if activated business not found", async () => {
+      mockBusinessRepository.findAndUpdateByToken.mockResolvedValue(null);
+      mockCryptoService.hashToken.mockReturnValue(hashedToken);
+      const result = businessService.activateUser(
+        rawToken,
+        "user-123",
+        "ashiz@gmail.com",
+      );
+
+      await expect(result).rejects.toThrow("Activated business not found");
+      expect(mockBusinessRepository.findAndUpdateByToken).toHaveBeenCalledWith(
+        hashedToken,
+        mockSession,
+      );
+    });
+
+    it("should display activated true if user is activated ", async () => {
+      mockBusinessRepository.findAndUpdateByToken.mockResolvedValue(
+        businessDoc,
+      );
+      mockCryptoService.hashToken.mockReturnValue(hashedToken);
+      const result = await businessService.activateUser(
+        rawToken,
+        "user-123",
+        "ashiz@gmail.com",
+      );
+
+      expect(
+        mockUserBusinessRepository.findAndUpdateByUserIdWithSession,
+      ).toHaveBeenCalledWith("user-123", "owner", businessDoc.id, mockSession);
+      expect(mockNotificationEmitter.notify).toHaveBeenCalled();
+      expect(result).toBe(true);
     });
   });
 });
