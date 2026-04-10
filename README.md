@@ -1,4 +1,4 @@
------TDD-Driven POS Engine-----(ONGOING NOW)
+-----TDD-Driven POS Engine-----(working on testing)
 
 A professional-grade Point of Sale (POS) backend architected with TypeScript and a strict Test-Driven Development (TDD) philosophy. This project serves as a deep dive into scalable architecture, focusing on data integrity, real-time session management, and automated infrastructure testing.
 

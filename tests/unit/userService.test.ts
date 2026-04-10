@@ -150,7 +150,9 @@ describe("Create user test", () => {
     expect(mockNotifyEmitter.notify).not.toHaveBeenCalled();
   });
 
+  //working on this
   describe("Active user with password testing", () => {
     beforeEach(() => {});
+    it("should check", () => {});
   });
 });
