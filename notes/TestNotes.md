@@ -24,3 +24,16 @@ TEST:UNIT
 TEST:INTEGRATION
 1 . To run - npm run test:int
 2. To run in watch mode - npm run test:int:watch
+
+
+SOME TESTING NOTES
+
+  session.withTransaction(() => {})
+  1.  session withTransaction is better than startTransaction , commitTransaction
+  2.  if you call any function , than control hitting the function is not enough, it have to through that function and exit from that function successfully. 
+  3. example:  expect(mockSession.withTransaction).toHaveBeenCalled();
+   To work this function withTransaction(), all the function inside that withTransaction() must be pass.
+  4. Mock the function first, before using it. Check userService.test.ts for detail
+        withTransaction: vi.fn().mockImplementation(async (fn) => {
+          return await fn();
+        }),

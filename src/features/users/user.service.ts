@@ -81,9 +81,6 @@ export class UserService implements IUserService {
           subject: "Activate your account",
           message: `Activate your account by clicking on this link: http://localhost:3000/api/userActivation/${userData.businessId}/${token}`,
         });
-      } else {
-        //otherwise dont need to update the password, just user is active with businessId
-        console.log("user activated successfully");
       }
 
       return user;
@@ -113,12 +110,9 @@ export class UserService implements IUserService {
       );
 
       if (!updatedUser) {
-        console.log("Failed to update the user password");
-        await session.abortTransaction();
+        session.abortTransaction();
         throw new Error("User not found");
       }
-
-      console.log("user id after update", updatedUser);
 
       await this.userBusinessRepository.findAndUpdateByUserIdWithSession(
         updatedUser.id,
@@ -152,7 +146,6 @@ export class UserService implements IUserService {
       );
 
     if (!userBusinessUpdate) {
-      console.log("Failed to update user business");
       throw new Error("User not found");
     }
 
