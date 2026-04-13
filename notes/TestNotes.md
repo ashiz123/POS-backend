@@ -1,9 +1,13 @@
 # TEST NOTES
 
-TEST STEPS
+# TEST STEPS
 1. MOCK - mockUser.loggedIn.mockResolvedValue(userData)
 2. ACTION - await authService.create(data)
 3. ASSERTION - expect()
+
+# RULES
+1. Keep contants like data outside describe
+2. keep let inside the related describe 
 
 
 WHY ACTION IN TEST MUST HAVE AWAIT ?
@@ -26,7 +30,7 @@ TEST:INTEGRATION
 2. To run in watch mode - npm run test:int:watch
 
 
-SOME TESTING NOTES
+# SOME TESTING NOTES
 
   session.withTransaction(() => {})
   1.  session withTransaction is better than startTransaction , commitTransaction

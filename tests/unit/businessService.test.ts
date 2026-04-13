@@ -31,6 +31,7 @@ const newBusiness = {
 } as unknown as CreateBusinessDTO & { userId: string; email: string };
 
 const adminUser = {
+  id: "admin-123",
   name: "Ashiz",
   email: "ashizhamal@gmail.com",
   phone: "989000",
@@ -48,6 +49,8 @@ const userBusinessData = {
   role: USER_ROLE.OWNER,
   userStatus: "pending",
 } as unknown as IUserBusinessDocument;
+
+const mockToken = "mock-token";
 
 describe("Business service test", () => {
   let businessService: IBusinessService<BusinessProps>;
@@ -150,15 +153,20 @@ describe("Business service test", () => {
 
     it("should successfully create the business", async () => {
       mockUserRepository.getAdmin.mockResolvedValue(adminUser);
+      mockCryptoService.createToken.mockReturnValue(mockToken);
       mockBusinessRepository.createWithSession.mockResolvedValue(businessDoc);
       mockUserBusinessRepository.assignUserWithSession.mockResolvedValue(
         userBusinessData,
       );
-      // mockNotificationEmitter.notify.mockResolvedValue();
-      await businessService.create(newBusiness);
+      const createBusiness = await businessService.create(newBusiness);
       expect(mockSession.withTransaction).toHaveBeenCalled();
       expect(mongoose.startSession).toHaveBeenCalled();
-      expect(mockNotificationEmitter.notify).toHaveBeenCalled();
+      expect(createBusiness).toEqual(businessDoc);
+      expect(mockNotificationEmitter.notify).toHaveBeenCalledWith({
+        email: adminUser.email,
+        subject: "Activate your business",
+        message: `Activate your account by clicking on this link: http://localhost:3000/api/businessActivation/${newBusiness.userId}/${mockToken}`,
+      });
     });
 
     it("should always call endSession even if the transaction fails", async () => {

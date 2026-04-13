@@ -1,10 +1,10 @@
 # USER AUTHENTICATION AND AUTHORIZTION
 
-Types of user authentication type
+## Types of user authentication type
 - Admin 
 - Owner & Employee
 
-Admin flow
+## Admin flow
  - User register with following data
  {
      "email": "testing@gmail.com",
@@ -23,7 +23,7 @@ Admin flow
    }
  - token code is generated that have detail like email
  
- Owners and other role flow
+ ## Owners and other role flow
   - User registered as above
   - user login and user detail like email are tokenize
     POST- http://localhost:3000/api/auth/login

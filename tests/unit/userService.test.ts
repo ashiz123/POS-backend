@@ -16,36 +16,15 @@ import mongoose from "mongoose";
 import { IUserDocument } from "../../src/features/auth/interfaces/authInterface";
 import { InternalNotificationEmitter } from "../../src/core/notification.emitter";
 
-let mockSession: any;
+const createdBy: string = "owner-123";
 
-let mockCryptoService: {
-  createToken: MockInstance<ICryptoService["createToken"]>;
-  hashToken: MockInstance<ICryptoService["hashToken"]>;
-};
-let mockUserBusinessRepo: {
-  canUserAccessBusiness: MockInstance<
-    IUserBusinessRepository["canUserAccessBusiness"]
-  >;
-  assignUserWithSession: MockInstance<
-    IUserBusinessRepository["assignUserWithSession"]
-  >;
+const mockToken: string = "token-123";
 
-  findAndUpdateByUserIdWithSession: MockInstance<
-    IUserBusinessRepository["findAndUpdateByUserIdWithSession"]
-  >;
-};
+const mockPassword: string = "password123";
 
-let mockUserRespository: {
-  createUserWithSession: MockInstance<IUserRepository["createUserWithSession"]>;
-  findAndUpdateByTokenWithSession: MockInstance<
-    IUserRepository["findAndUpdateByTokenWithSession"]
-  >;
-};
+const mockBusinessId: string = "biz-123";
 
-let mockNotifyEmitter: {
-  notify: MockInstance<InternalNotificationEmitter["notify"]>;
-  onNotification: MockInstance<InternalNotificationEmitter["onNotification"]>;
-};
+const mockUserId: string = "user-123";
 
 const userData = {
   name: "ashiz",
@@ -73,18 +52,41 @@ const userBusinessData = {
   createdBy: "owner-123",
 } as unknown as IUserBusinessDocument;
 
-const createdBy: string = "owner-123";
-
-const mockToken: string = "token-123";
-
-const mockPassword: string = "password123";
-
-const mockBusinessId: string = "biz-123";
-
-const mockUserId: string = "user-123";
-
 describe("User service test", () => {
   let userService: IUserService;
+
+  let mockSession: any;
+
+  let mockCryptoService: {
+    createToken: MockInstance<ICryptoService["createToken"]>;
+    hashToken: MockInstance<ICryptoService["hashToken"]>;
+  };
+  let mockUserBusinessRepo: {
+    canUserAccessBusiness: MockInstance<
+      IUserBusinessRepository["canUserAccessBusiness"]
+    >;
+    assignUserWithSession: MockInstance<
+      IUserBusinessRepository["assignUserWithSession"]
+    >;
+
+    findAndUpdateByUserIdWithSession: MockInstance<
+      IUserBusinessRepository["findAndUpdateByUserIdWithSession"]
+    >;
+  };
+
+  let mockUserRespository: {
+    createUserWithSession: MockInstance<
+      IUserRepository["createUserWithSession"]
+    >;
+    findAndUpdateByTokenWithSession: MockInstance<
+      IUserRepository["findAndUpdateByTokenWithSession"]
+    >;
+  };
+
+  let mockNotifyEmitter: {
+    notify: MockInstance<InternalNotificationEmitter["notify"]>;
+    onNotification: MockInstance<InternalNotificationEmitter["onNotification"]>;
+  };
   beforeEach(() => {
     vi.resetAllMocks();
     container.clearInstances();
