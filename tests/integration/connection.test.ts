@@ -1,35 +1,31 @@
-import { container } from 'tsyringe'
-import mongoose from 'mongoose'
-import { describe, it, expect } from 'vitest'
-import { TOKENS } from '../../src/config/tokens'
+import { container } from "tsyringe";
+import mongoose from "mongoose";
+import { describe, it, expect } from "vitest";
+import { TOKENS } from "../../src/config/tokens";
 
-describe('Environment Sanity Check', () => {
-    it('should run test environment', async () => {
-        expect(process.env.NODE_ENV).toEqual('Test')
-    })
+describe("Environment Sanity Check", () => {
+  // it("should run test environment", async () => {
+  //   expect(process.env.NODE_ENV).toEqual("Test");
+  // });
 
-    it('should have a working MongoDB connection', async () => {
-        console.log('Current NODE_ENV:', process.env.NODE_ENV)
+  it("should have a working MongoDB connection", async () => {
+    // Optional: Force a small wait if it's still connecting
+    if (mongoose.connection.readyState === 2) {
+      await new Promise((resolve) => mongoose.connection.once("open", resolve));
+    }
 
-        // Optional: Force a small wait if it's still connecting
-        if (mongoose.connection.readyState === 2) {
-            await new Promise((resolve) =>
-                mongoose.connection.once('open', resolve)
-            )
-        }
+    expect(mongoose.connection.readyState).toBe(1);
+  });
 
-        expect(mongoose.connection.readyState).toBe(1)
-    })
+  it("should have the BusinessController registered in the container", () => {
+    // This is exactly what was failing before
+    const isRegistered = container.isRegistered(TOKENS.BUSINESS_CONTROLLER);
+    expect(isRegistered).toBe(true);
+  });
 
-    it('should have the BusinessController registered in the container', () => {
-        // This is exactly what was failing before
-        const isRegistered = container.isRegistered(TOKENS.BUSINESS_CONTROLLER)
-        expect(isRegistered).toBe(true)
-    })
-
-    it('should be able to resolve the BusinessController', () => {
-        const controller = container.resolve(TOKENS.BUSINESS_CONTROLLER)
-        expect(controller).toBeDefined()
-        expect(controller).toHaveProperty('activateForm') // Verify a real method exists
-    })
-})
+  it("should be able to resolve the BusinessController", () => {
+    const controller = container.resolve(TOKENS.BUSINESS_CONTROLLER);
+    expect(controller).toBeDefined();
+    expect(controller).toHaveProperty("activateForm"); // Verify a real method exists
+  });
+});

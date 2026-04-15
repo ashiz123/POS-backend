@@ -92,7 +92,7 @@ export class TerminalService implements ITerminalService {
 
     if (!terminalApproved) {
       throw new Error(
-        "Could not approve terminal. It might not exist or isn't pending.",
+        "Could not approve terminal. It might not exist or is not pending.",
       );
     }
 

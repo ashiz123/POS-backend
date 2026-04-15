@@ -1,8 +1,8 @@
 To run docker for test. I got the separate file.  docker-compose.test.yml
 To run this - docker compose -f docker-compose.test.yml up -d
 
-
-1. SETTING HOST FOR MONGODB (development)
+## SETTING HOST 
+1. Development
 mongo_pos:
         container_name: mongo_pos
         image: mongo:7
@@ -19,7 +19,7 @@ localhost:27017 - localhost
 
 TO SETUP WITH COMPASS - USE localhost:27017
 
-2. SETTING HOST FOR MONGODB (testing)
+2. Testing
 
  database_setup:
         container_name: mongo_pos_test
@@ -41,14 +41,19 @@ TO SETUP WITH COMPASS - USE localhost:27017
     docker - database_setup: 27017
     localhost - localhost:27019
     
-    
-    # TEST USING DOCKER TERMINAL
+ ## TEST ENVIRONMENT
+  1. Using Docker
     To test using docker (docker-compose.test.yml)
     Command  - docker compose -f docker-compose.test.yml up -d
-    MONGODB_URL=mongodb://database_setup:27017/pos_testing?replicaSet=rs0&directConnection=true ---------docker test url
+    MONGODB_URL - mongodb://database_setup:27017/pos_testing?replicaSet=rs0&directConnection=true ---------docker test url
+    env_file - .env.docker.test //This is setup in docker-compose.test.yml 
     
     
-    #TEST USING LOCAL TERMINAL
+    
+  2. Using local 
     To test using in the development ( docker.compose.yml)
     command - docker compose up 
-    MONGODB_URL = mongodb://localhost:27017/pos_db?replicaSet=rs0&directConnection=true
+    MONGODB_URL - mongodb://localhost:27017/pos_db?replicaSet=rs0&directConnection=true
+    env_file - .env.test //its setup inside the tests/setup/globalSetup.ts   g
+    
+    note: globalFile setup dont overwrite the docker environment because once env is setup it cannot be overwrite. so the docker use its env inside that docker-compose.test.yml and local use globalFile.

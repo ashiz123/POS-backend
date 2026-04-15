@@ -71,8 +71,6 @@ export class AuthService implements IAuthService {
     const user: IUserDocument | null =
       await this.authRepository.findByEmail(email);
 
-    console.log("logged in user", user);
-
     if (!user) {
       throw new NotFoundError("User not registered", "authService.loginUser");
     }
