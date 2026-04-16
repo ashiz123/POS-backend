@@ -4,10 +4,13 @@ import { CreateUserDTO, IUserRepository, IUserService } from "./user.type";
 import { UnauthorizedError } from "../../errors/httpErrors";
 import { hashPassword } from "../../utils/password";
 import { ICryptoService } from "../../utils/token";
-import { IUserBusinessRepository } from "../../unused";
+
 import { TOKENS } from "../../config/tokens";
 import { injectable, inject } from "tsyringe";
-import { UserStatus } from "../userBusiness/interfaces/userBusiness.interface";
+import {
+  IUserBusinessRepository,
+  UserStatus,
+} from "../userBusiness/interfaces/userBusiness.interface";
 import { IInternalNotificationEmitter } from "../../core/notification.emitter";
 
 @injectable()

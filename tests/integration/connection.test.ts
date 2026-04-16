@@ -4,12 +4,11 @@ import { describe, it, expect } from "vitest";
 import { TOKENS } from "../../src/config/tokens";
 
 describe("Environment Sanity Check", () => {
-  // it("should run test environment", async () => {
-  //   expect(process.env.NODE_ENV).toEqual("Test");
-  // });
+  it("should run test environment", async () => {
+    expect(process.env.NODE_ENV).toEqual("test");
+  });
 
   it("should have a working MongoDB connection", async () => {
-    // Optional: Force a small wait if it's still connecting
     if (mongoose.connection.readyState === 2) {
       await new Promise((resolve) => mongoose.connection.once("open", resolve));
     }
@@ -18,7 +17,6 @@ describe("Environment Sanity Check", () => {
   });
 
   it("should have the BusinessController registered in the container", () => {
-    // This is exactly what was failing before
     const isRegistered = container.isRegistered(TOKENS.BUSINESS_CONTROLLER);
     expect(isRegistered).toBe(true);
   });
