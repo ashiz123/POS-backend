@@ -1,5 +1,6 @@
 # Node modules
 node_modules/
+unusedTest/
 
 # Build output
 dist/
