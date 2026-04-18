@@ -96,6 +96,7 @@ export class BusinessController implements IBusinessController {
         id,
         updatedData,
       );
+
       if (!updatedBusiness) {
         throw new Error("Business is not updated");
       }
@@ -108,6 +109,8 @@ export class BusinessController implements IBusinessController {
 
       res.status(200).json(response);
     } catch (error) {
+      console.log(error);
+
       next(error);
     }
   };
@@ -115,10 +118,8 @@ export class BusinessController implements IBusinessController {
   remove = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params as { id: string };
-      const deletedBusiness = await this.businessService.delete(id);
-      if (!deletedBusiness) {
-        throw new Error("Business can not deleted");
-      }
+      await this.businessService.delete(id);
+
       const response: ApiResponse<object> = {
         success: true,
         data: {},

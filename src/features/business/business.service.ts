@@ -96,11 +96,24 @@ export class BusinessService implements IBusinessService<BusinessProps> {
     id: string,
     data: UpdateQuery<BusinessProps>,
   ): Promise<BusinessProps | null> {
-    return this.businessRepo.update(id, data);
+    const updatedBusiness = await this.businessRepo.update(id, data);
+
+    if (!updatedBusiness) {
+      throw new NotFoundError("Business not found");
+    }
+
+    return updatedBusiness;
   }
 
   async delete(id: string): Promise<boolean> {
-    return this.businessRepo.delete(id);
+    const isDeleted = await this.businessRepo.delete(id);
+
+    if (!isDeleted) {
+      // This triggers the 404 flow in your controller
+      throw new NotFoundError("User not found in database");
+    }
+
+    return isDeleted;
   }
 
   async filterBusinessByAuthUser(authId: string): Promise<BusinessProps[]> {

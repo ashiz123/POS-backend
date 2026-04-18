@@ -134,7 +134,7 @@ describe.sequential("Authentication test", () => {
     const response = await request(app)
       .post("/api/auth/logout")
       .set("Authorization", `Bearer ${"fake-token"}`);
-    console.log(response.body);
+
     expect(response.status).toBe(401);
     expect(response.body).toEqual({ message: "Invalid or expired token" });
   });

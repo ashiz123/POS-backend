@@ -33,11 +33,17 @@ TEST:INTEGRATION
 # SOME TESTING NOTES
 
   session.withTransaction(() => {})
-  1.  session withTransaction is better than startTransaction , commitTransaction
-  2.  if you call any function , than control hitting the function is not enough, it have to through that function and exit from that function successfully. 
+  1. For handline session,  session withTransaction is better than startTransaction , commitTransaction
+  2. if you call any function , than control hitting the function is not enough, it have to through that function and exit from that function successfully. 
   3. example:  expect(mockSession.withTransaction).toHaveBeenCalled();
    To work this function withTransaction(), all the function inside that withTransaction() must be pass.
   4. Mock the function first, before using it. Check userService.test.ts for detail
         withTransaction: vi.fn().mockImplementation(async (fn) => {
           return await fn();
         }),
+
+  
+  ## Test Integration note
+  1. For error testing , Its better to use cenralize error handling like creating NotFoundError . We set the statuscode there , this.statusCode = 404. If not Js set it 500. and 500 error generates or you can set manually while handling error which is bad practice as well. so, dont do like new Error(), better create NotFoundError() and use it.
+  
+  2. Unit test works fine with new Error(). doing like       .rejects.toThrow('')
