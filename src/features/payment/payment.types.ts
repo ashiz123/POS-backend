@@ -1,6 +1,6 @@
-import { ClientSession } from 'mongodb'
 import { IPaymentDocument, PaymentType } from './payment.model'
 import { PAYMENT_STATUS } from './payment.constants'
+import { ClientSession } from 'mongoose'
 
 export interface IPaymentController {
     createPayment(payment: PaymentType): Promise<PaymentType>

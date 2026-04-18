@@ -4,6 +4,12 @@ export const TOKENS = {
 
     STRIPE_PAYMENT_SERVICE: Symbol.for('IStripePaymentService'),
 
+    COMPARE_PASSWORD: Symbol.for('ComparePassword'),
+    JWT_SIGN_IN: Symbol.for('JwtSignIn'),
+    JWT_TERMINAL_SIGN_IN: Symbol.for('JwtTerminalSignIn'),
+    GENERATE_TOKEN: Symbol.for('GenerateToken'),
+    CRYPTO_SERVICE: Symbol.for('ICryptoService'),
+
     AUTHCODE_MODEL: Symbol.for('AuthCodeModel'),
     AUTHCODE_REPOSITORY: Symbol.for('IAuthCodeRepository'),
     AUTHCODE_SERVICE: Symbol.for('IAuthCodeService'),

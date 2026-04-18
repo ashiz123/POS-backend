@@ -1,7 +1,5 @@
-import {
-    IUserBusinessDocument,
-    UserRole,
-} from '../../userBusiness/interfaces/userBusiness.interface'
+import { IUserBusinessDocument } from '../../userBusiness/interfaces/userBusiness.interface'
+import { UserRole } from '../auth.type'
 export type LoginResponse = {
     // id?: Types.ObjectId
     email: string

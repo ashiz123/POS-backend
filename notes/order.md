@@ -1,5 +1,3 @@
-
-
 # TO CREATE THE ORDER
  1. When the terminal is created of any business , User login to terminal
  2. User is associated with some businessId

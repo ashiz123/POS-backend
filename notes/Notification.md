@@ -1,6 +1,6 @@
 Notification with queueing system flow
 
-setup
+# setup
 1. Create the queue
 export const NotificationToAdminQueue = new Queue('notificationToAdmin', {
     connection: redisConnect,

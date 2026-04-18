@@ -16,8 +16,10 @@ import orderRoute from '../features/order/order.route.js'
 import terminalRoute from '../features/terminal/terminal.route.js'
 import notificationRoute from '../features/notification/notification.route.js'
 import { webhookHandler } from '../features/stripe/stripeTerminal.controller.js'
+// import { createBusinessRouter } from '../features/business/business.route.js'
 // import { NotificationWorker } from '../workers/sendNotifictionWorker.js'
 // import { container } from 'tsyringe'
+// const businessRoute = createBusinessRouter(container)
 
 const app = express()
 

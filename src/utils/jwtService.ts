@@ -30,6 +30,8 @@ export type SignInType = (
     ttl?: string
 ) => Promise<string>
 
+export type GenerateTokenType = (payload: any) => Promise<string>
+
 export const signIn: SignInType = async (data, ttl = '10m') => {
     return await new SignJWT(data)
         .setProtectedHeader({ alg: 'HS256' })
@@ -54,8 +56,8 @@ export async function generateTokenForTerminal(payload: any) {
     return token
 }
 
-export async function generateToken(payload: any) {
-    const token = await signIn(payload)
+export const generateToken: GenerateTokenType = async (payload: Payload) => {
+    const token = await signInForTerminal(payload)
     return token
 }
 

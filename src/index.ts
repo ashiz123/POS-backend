@@ -9,7 +9,7 @@ async function bootstrap() {
     try {
         const port = process.env.PORT || 3000
         logger.info(`Starting application in ${process.env.NODE_ENV} mode`)
-        console.log('Environment:', process.env.NODE_ENV)
+        console.log('Environment:', process.env.NODE_ENV, port)
 
         const { default: app } = await import('./config/app.js')
 

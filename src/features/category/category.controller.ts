@@ -32,7 +32,7 @@ export class CategoryController {
 
     getCategory = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id } = req.params
+            const { id } = req.params as { id: string }
             const category = await this.categoryService.getById(id)
             return res.status(200).json({ data: category })
         } catch (error) {
@@ -66,7 +66,7 @@ export class CategoryController {
         next: NextFunction
     ) => {
         try {
-            const { id } = req.params
+            const { id } = req.params as { id: string }
             const data = UpdateCategorySchema.parse(req.body)
             const editCatgory = await this.categoryService.update(id, data)
             if (!editCatgory) {
@@ -89,7 +89,7 @@ export class CategoryController {
         next: NextFunction
     ) => {
         try {
-            const { id } = req.params
+            const { id } = req.params as { id: string }
             const deletedCategory = await this.categoryService.delete(id)
             if (!deletedCategory) {
                 throw new Error('Category cannot deleted')

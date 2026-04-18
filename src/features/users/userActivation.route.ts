@@ -1,5 +1,11 @@
+import { TOKENS } from '../../config/tokens'
 import { createNonCrudRoutes } from '../../shared/nonCrudRouter'
-import { userController } from './user.route'
+import { container } from 'tsyringe'
+import { IUserController } from './user.type'
+
+const userController = container.resolve<IUserController>(
+    TOKENS.USER_CONTROLLER
+)
 
 export default createNonCrudRoutes(userController, {
     exclude: [],

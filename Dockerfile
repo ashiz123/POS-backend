@@ -13,18 +13,13 @@ CMD ["npm", "run", "dev"]
 
 #stage 3: test
 FROM base AS test
+ENV IS_DOCKER=true
 RUN npm install
-COPY . . 
+COPY . .
 CMD [ "npm", "test" ]
 
 #stage 4: production
 FROM base AS production
 RUN npm install
-COPY . . 
+COPY . .
 CMD ["npm", "start"]
-
-
-
-
-
-

@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe'
 import { IPaymentRepository, IPaymentService } from './payment.types'
 import { TOKENS } from '../../config/tokens'
 import { IPaymentDocument, PaymentType } from './payment.model'
-import { ClientSession } from 'mongodb'
+import { ClientSession } from 'mongoose'
 
 @injectable()
 export class PaymentService implements IPaymentService {
