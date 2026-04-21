@@ -29,7 +29,7 @@ export function createCrudRoutes(
       handler: controller.list,
     },
     {
-      name: "getById",
+      name: "show",
       method: "get",
       path: "/:id",
       handler: controller.getById,

@@ -33,7 +33,6 @@ export abstract class CrudRepository<
   }
 
   async update(id: string, data: UpdateQuery<UpdateDTO>): Promise<T | null> {
-    logger.info("this is update triggering");
     return this.model.findByIdAndUpdate(
       { _id: id, deletedAt: null },
       data as UpdateQuery<T>,

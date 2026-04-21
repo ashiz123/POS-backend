@@ -52,6 +52,7 @@ describe("Business route test", () => {
 
     token = loginUser.body.data.token;
   });
+
   describe("Create Business", () => {
     it("should throw logged in user not found", async () => {
       const response = await request(app)
