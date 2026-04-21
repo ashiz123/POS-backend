@@ -1,34 +1,35 @@
-import { CrudRepository, ICrudRepository } from '../../shared/crudRepository'
+import { singleton } from "tsyringe";
+import { CrudRepository } from "../../shared/crudRepository";
 import {
-    CategoryModel,
-    CreateCategoryDTO,
-    ICategoryDocument,
-    UpdateCategoryDTO,
-} from './category.model'
+  CategoryModel,
+  CreateCategoryDTO,
+  ICategoryDocument,
+  UpdateCategoryDTO,
+} from "./category.model";
+import { ICategoryRepository } from "./category.type";
 
-export interface ICategoryRepository extends ICrudRepository<
+@singleton()
+export class CategoryRepository
+  extends CrudRepository<
     ICategoryDocument,
     CreateCategoryDTO,
     UpdateCategoryDTO
-> {
-    getChildren(id: string): Promise<ICategoryDocument[]>
-}
-
-export class CategoryRepository
-    extends CrudRepository<
-        ICategoryDocument,
-        CreateCategoryDTO,
-        UpdateCategoryDTO
-    >
-    implements ICategoryRepository
+  >
+  implements ICategoryRepository
 {
-    constructor() {
-        super(CategoryModel) // Pass the model to parent
-    }
+  constructor() {
+    super(CategoryModel); // Pass the model to parent
+  }
 
-    async getChildren(id: string): Promise<ICategoryDocument[]> {
-        return this.model.find({ parentCategoryId: id })
-    }
+  async getChildren(id: string): Promise<ICategoryDocument[]> {
+    return this.model.find({ parentCategoryId: id });
+  }
+
+  async getCategoryByBusinessId(
+    businessId: string,
+  ): Promise<ICategoryDocument[]> {
+    return this.model.find({ businessId, deletedAt: null });
+  }
 }
 
-export const categoryRepository = new CategoryRepository()
+// export const categoryRepository = new CategoryRepository();
