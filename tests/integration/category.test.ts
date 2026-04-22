@@ -104,7 +104,7 @@ describe("Category test", () => {
       expect(response.status).toBe(400);
     });
 
-    it("should login with business successful", async () => {
+    it("should create category successfully", async () => {
       const createCategoryRoute = "/api/categories/create";
       const response = await request(app)
         .post(createCategoryRoute)

@@ -1,64 +1,68 @@
-import { inject, injectable } from 'tsyringe'
+import { inject, injectable } from "tsyringe";
 
 import {
-    CreateProductDTO,
-    IProduct,
-    IProductDocument,
-    UpdateProductDTO,
-} from './product.model'
-import { productRepository } from './product.repository'
-import { IProductRepository, IProductService } from './product.type'
-import { TOKENS } from '../../config/tokens'
+  CreateProductDTO,
+  IProduct,
+  IProductDocument,
+  UpdateProductDTO,
+} from "./product.model";
+import { productRepository } from "./product.repository";
+import { IProductRepository, IProductService } from "./product.type";
+import { TOKENS } from "../../config/tokens";
+import { ExtraValidationError } from "../../errors/httpErrors";
 
 @injectable()
 export class ProductService implements IProductService {
-    constructor(
-        @inject(TOKENS.PRODUCT_REPOSITORY) private repo: IProductRepository
-    ) {}
+  constructor(
+    @inject(TOKENS.PRODUCT_REPOSITORY) private repo: IProductRepository,
+  ) {}
 
-    getById = async (productId: string): Promise<IProductDocument | null> => {
-        return this.repo.findById(productId)
-    }
+  getById = async (productId: string): Promise<IProductDocument | null> => {
+    return this.repo.findById(productId);
+  };
 
-    getAll = async (): Promise<IProductDocument[]> => {
-        return this.repo.findAll()
-    }
+  getAll = async (): Promise<IProductDocument[]> => {
+    return this.repo.findAll();
+  };
 
-    getProductsByBusinessId = async (
-        businessId: string
-    ): Promise<IProduct[]> => {
-        const products = await this.repo.getProductByBusinessId(businessId)
-        return products
-    }
+  getProductsByBusinessId = async (businessId: string): Promise<IProduct[]> => {
+    const products = await this.repo.getProductByBusinessId(businessId);
+    return products;
+  };
 
-    create = async (data: CreateProductDTO): Promise<IProductDocument> => {
-        const sku = this.repo.generateSKU()
-        return this.repo.create({ ...data, sku })
-    }
+  create = async (data: CreateProductDTO): Promise<IProductDocument> => {
+    const sku = this.repo.generateSKU();
+    return this.repo.create({ ...data, sku });
+  };
 
-    update = async (
-        id: string,
-        data: UpdateProductDTO
-    ): Promise<IProductDocument | null> => {
-        return this.repo.update(id, data)
-    }
+  update = async (
+    id: string,
+    data: UpdateProductDTO,
+  ): Promise<IProductDocument | null> => {
+    const updateProduct = await this.repo.update(id, data);
 
-    delete = async (id: string): Promise<boolean> => {
-        return this.repo.delete(id)
+    if (!updateProduct) {
+      throw new ExtraValidationError("Data is not updated");
     }
+    return updateProduct;
+  };
 
-    getProductsByCategory = async (
-        categoryId: string
-    ): Promise<IProduct[] | null> => {
-        return this.repo.filterProductByCategoryId(categoryId)
-    }
+  delete = async (id: string): Promise<boolean> => {
+    return this.repo.delete(id);
+  };
 
-    getProductByDateRange = async (
-        fromDate: Date,
-        toDate: Date
-    ): Promise<IProduct[] | null> => {
-        return this.repo.filterProductByDateRange(fromDate, toDate)
-    }
+  getProductsByCategory = async (
+    categoryId: string,
+  ): Promise<IProduct[] | null> => {
+    return this.repo.filterProductByCategoryId(categoryId);
+  };
+
+  getProductByDateRange = async (
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<IProduct[] | null> => {
+    return this.repo.filterProductByDateRange(fromDate, toDate);
+  };
 }
 
-export const productService = new ProductService(productRepository)
+export const productService = new ProductService(productRepository);
