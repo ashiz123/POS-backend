@@ -70,7 +70,7 @@ export class BusinessService implements IBusinessService<BusinessProps> {
           {
             userId: data.userId,
             businessId: createdBusiness.id,
-            role: "user",
+            role: "owner",
             userStatus: UserStatus.PENDING,
           },
           session,
@@ -146,12 +146,12 @@ export class BusinessService implements IBusinessService<BusinessProps> {
           throw new NotFoundError("Activated business not found");
         }
 
-        await this.userBusinessRepo.findAndUpdateByUserIdWithSession(
-          userId,
-          "owner",
-          activateBusiness.id,
-          session,
-        );
+        await this.userBusinessRepo.findAndUpdateByUserIdWithSession({
+          userId: userId,
+          businessId: activateBusiness.id,
+          role: "owner",
+          session: session,
+        });
 
         activated = true;
       });

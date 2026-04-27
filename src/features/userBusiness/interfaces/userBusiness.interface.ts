@@ -92,6 +92,13 @@ export interface IUserBusinessModel extends Model<IUserBusinessDocument> {
   ): Promise<IUserBusinessDocument[]>;
 }
 
+export interface FindUserArgs {
+  userId: string;
+  businessId: string;
+  role?: string;
+  session?: ClientSession;
+}
+
 // Repository interfaces
 export interface IUserBusinessRepository {
   assignUserWithSession(
@@ -108,12 +115,12 @@ export interface IUserBusinessRepository {
   removeUser(userId: string, businessId: string): Promise<boolean>;
   getBusinessUsers(businessId: string): Promise<IUserDocument[]>;
   getUserBusinesses(userId: string): Promise<IUserBusinessDocument[]>;
-  findAndUpdateByUserIdWithSession(
-    userId: string,
-    role: string,
-    businessId: string,
-    session?: ClientSession,
-  ): Promise<IUserBusinessDocument | null>;
+  findAndUpdateByUserIdWithSession({
+    userId,
+    businessId,
+    role,
+    session,
+  }: FindUserArgs): Promise<IUserBusinessDocument | null>;
   findAndUpdateByToken(token: string): Promise<IUserBusinessDocument | null>;
   canUserAccessBusiness(userId: string, businessId: string): Promise<boolean>;
 }

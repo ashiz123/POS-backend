@@ -33,6 +33,9 @@ import { IAuthCode, IAuthCodeRepository } from "../authCode/authCode.type.js";
 
 @singleton()
 export class AuthService implements IAuthService {
+  private readonly accessSecret: Uint8Array;
+  private readonly refreshSecret: Uint8Array;
+
   constructor(
     @inject(TOKENS.AUTH_REPOSITORY) private authRepository: IAuthRepository,
     @inject(TOKENS.SESSION_SERVICE) private session: ISessionService,
@@ -50,9 +53,14 @@ export class AuthService implements IAuthService {
     private generateToken: GenerateTokenType,
     @inject(TOKENS.CRYPTO_SERVICE)
     private cryptoService: ICryptoService,
-  ) {}
+  ) {
+    this.accessSecret = new TextEncoder().encode(process.env.ACCESS_SECRET);
+    this.refreshSecret = new TextEncoder().encode(process.env.REFRESH_SECRET);
+  }
 
   async register(data: IUserProps): Promise<IUserDocument> {
+    const token = this.cryptoService.createToken();
+
     const user: IUserDocument | null = await this.authRepository.findByEmail(
       data.email,
     );
@@ -61,7 +69,31 @@ export class AuthService implements IAuthService {
       throw new ConflictError("User already exist", "authService.registerUser");
     }
 
-    return await this.authRepository.createUser(data);
+    const newUserWithToken: IUserProps = {
+      ...data,
+      verificationToken: this.cryptoService.hashToken(token),
+      verificationExpires: new Date(Date.now() + 3600000),
+    };
+
+    const newUser = await this.authRepository.createUser(newUserWithToken);
+    if (newUser) {
+      const emailData = {
+        email: newUser.email,
+        subject: "Access Code",
+        message: `Verify your account : http://localhost:3000/api/auth/verifyUser/${token}`,
+      };
+      this.notificationEmitter.notify(emailData);
+    }
+
+    return newUser;
+  }
+
+  async verify(token: string): Promise<IUserDocument> {
+    if (!token) {
+      throw new NotFoundError("token not found");
+    }
+    const hashedToken = this.cryptoService.hashToken(token);
+    return this.authRepository.verifyUser(hashedToken);
   }
 
   async login(
@@ -71,6 +103,7 @@ export class AuthService implements IAuthService {
     const user: IUserDocument | null =
       await this.authRepository.findByEmail(email);
 
+    console.log("app secret", process.env.NODE_ENV);
     if (!user) {
       throw new NotFoundError("User not registered", "authService.loginUser");
     }
@@ -82,6 +115,10 @@ export class AuthService implements IAuthService {
     const isValid = await this.comparePassword(password, user.password);
     if (!isValid) {
       throw new UnauthorizedError("Invalid credentials");
+    }
+
+    if (!user.is_verified) {
+      throw new UnauthorizedError("User is not verified");
     }
 
     // Added this for admin
@@ -99,27 +136,27 @@ export class AuthService implements IAuthService {
       };
     }
 
-    const data = await this.userBusinessRepository.getUserBusinesses(user.id);
-
-    //MAPPING FROM DOCUMENT TYPE TO USERBUSINESS TYPE
-    const businesses: UserBusiness[] = data.map((b) => ({
-      businessId: b.businessId.toString(),
-      role: b.role,
-      userStatus: b.userStatus,
-    }));
-
     const preAuthData: PreAuthType = {
       sub: user.id,
       email: user.email,
       type: "preAuth",
     };
 
-    const token = await this.jwtSignIn(preAuthData);
+    const accessToken = await this.jwtSignIn(
+      preAuthData,
+      this.accessSecret,
+      "15m",
+    );
+    const refreshToken = await this.jwtSignIn(
+      preAuthData,
+      this.refreshSecret,
+      "7h",
+    );
 
     return {
-      email: user.email,
-      token: token,
-      businesses,
+      userData: user,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     };
   }
 
@@ -207,6 +244,8 @@ export class AuthService implements IAuthService {
     const token = await this.generateToken(adminData);
     return token;
   }
+
+  async setRefreshToken(refreshToken: string): Promise<string> {}
 
   // async createSession(token: string, payload: Payload) {
   //     await this.redis.set(

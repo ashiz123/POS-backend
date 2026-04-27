@@ -30,7 +30,7 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
     role: {
       type: String,
       enum: Object.values(USER_ROLE),
-      required: true,
+      required: false,
       trim: true,
     },
 
@@ -40,8 +40,14 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
     },
 
     //not necessary
-    activationToken: {
+    verificationToken: {
       type: String,
+      required: false,
+      index: true,
+    },
+
+    verificationExpires: {
+      type: Date,
       required: false,
     },
 
@@ -49,6 +55,12 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
     new: {
       type: Boolean,
       default: true,
+      required: true,
+    },
+
+    is_verified: {
+      type: Boolean,
+      default: false,
       required: true,
     },
 

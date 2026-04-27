@@ -5,6 +5,7 @@ import {
   IUserBusinessRepository,
   IUserBusinessDocument,
   AssignUserDTO,
+  FindUserArgs,
   // UpdateUserRoleDTO,
 } from "./interfaces/userBusiness.interface.js";
 import { IUserDocument, IUserProps } from "../auth/interfaces/authInterface.js";
@@ -39,12 +40,12 @@ export class UserBusinessRepository implements IUserBusinessRepository {
   }
 
   //working here with session
-  async findAndUpdateByUserIdWithSession(
-    userId: string,
-    role: string,
-    businessId: string,
-    session?: ClientSession,
-  ): Promise<IUserBusinessDocument | null> {
+  async findAndUpdateByUserIdWithSession({
+    userId,
+    businessId,
+    role,
+    session,
+  }: FindUserArgs): Promise<IUserBusinessDocument | null> {
     console.log("data", userId, businessId);
     const updateUser = await this.model.findOneAndUpdate(
       {
@@ -52,7 +53,8 @@ export class UserBusinessRepository implements IUserBusinessRepository {
         businessId: new mongoose.Types.ObjectId(businessId),
         userStatus: "pending",
       },
-      { userStatus: "active", role: role },
+      { userStatus: "active" },
+      // { userStatus: "active", role: role }, //role is removed
       { new: true, ...(session ? { session } : {}) },
     );
     return updateUser;

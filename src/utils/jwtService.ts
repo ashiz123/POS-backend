@@ -26,12 +26,22 @@ export const AUDIENCE: string = "my-pos-api";
 
 export type SignInType = (
   data: Payload | PreAuthType,
+  secret: Uint8Array,
+  ttl?: string,
+) => Promise<string>;
+
+export type TerminalSignInType = (
+  data: Payload | PreAuthType,
   ttl?: string,
 ) => Promise<string>;
 
 export type GenerateTokenType = (payload: any) => Promise<string>;
 
-export const signIn: SignInType = async (data, ttl = "10m") => {
+export const signIn: SignInType = async (
+  data,
+  secret,
+  ttl = "10m",
+): Promise<string> => {
   return await new SignJWT(data)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -41,7 +51,9 @@ export const signIn: SignInType = async (data, ttl = "10m") => {
     .sign(secret);
 };
 
-export const signInForTerminal: SignInType = async (data) => {
+export const signInForTerminal: TerminalSignInType = async (
+  data,
+): Promise<string> => {
   return await new SignJWT(data)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -60,13 +72,18 @@ export const generateToken: GenerateTokenType = async (payload: Payload) => {
   return token;
 };
 
-export async function verifyToken(token: string): Promise<JwtPayload> {
+export async function verifyToken(
+  token: string,
+  secret: Uint8Array,
+): Promise<JwtPayload> {
   const { payload } = await jwtVerify<JwtPayload>(token, secret, {
     algorithms: ["HS256"],
     issuer: ISSUER,
     audience: AUDIENCE,
     clockTolerance: 5,
   });
+
+  console.log(payload);
 
   if (!payload.type) {
     throw new ConflictError("Payload type not found");

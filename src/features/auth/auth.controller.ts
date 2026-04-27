@@ -7,15 +7,35 @@ import {
 } from "./validations/LoginSchemaValidation.js";
 import { logger } from "../../middlewares/logHandler.js";
 import { AuthService } from "./auth.service.js";
+import { LoginFirstResponse } from "./types/LoginResponse.type.js";
+import { setAuthCookies, setRefreshCookies } from "../../utils/cookieHelper.js";
+import { UnauthorizedError } from "../../errors/httpErrors.js";
 
 export const registerUser =
   (authService: IAuthService) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = RegisterSchemaValidation.parse(req.body);
-      // const { name, email, phone, password } = data
       const result = await authService.register(data as IUserProps);
       res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const verifyUser =
+  (authService: IAuthService) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.params as { token: string };
+      await authService.verify(token);
+      return res.send(`
+              <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+                <h1 style="color: #10b981;">Verification Successful!</h1>
+                <p>Your email has been verified. You can now close this tab and log in to the app.</p>
+                <a href="http://localhost:5173/login" style="color: #3b82f6; text-decoration: none;">Go to Login</a>
+              </div>
+            `);
     } catch (error) {
       next(error);
     }
@@ -27,11 +47,21 @@ export const loginUser =
     try {
       const data = LoginSchemaValidation.parse(req.body);
       const { email, password } = data;
-      const result = await authService.login(email, password);
-      res.status(200).json({
+      const { accessToken, refreshToken, userData }: LoginFirstResponse =
+        await authService.login(email, password);
+
+      if (!accessToken || !refreshToken) {
+        throw new UnauthorizedError(
+          "Authentication failed: Access token or refresh token not found",
+        );
+      }
+
+      setAuthCookies(res, accessToken, refreshToken);
+
+      return res.status(200).json({
         success: true,
         message: "User logged in successfully",
-        data: result,
+        data: { user: userData },
       });
     } catch (err) {
       next(err);
@@ -94,6 +124,24 @@ export const logoutUser =
     }
 
     res.status(200).json({ message: "User logged out successfully" });
+  };
+
+export const refreshSession =
+  (authService: AuthService) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res.status(401).json({
+        message: "Session denied. Please login again",
+      });
+    }
+
+    const newAccessToken: string =
+      await authService.setRefreshToken(refreshToken);
+
+    setRefreshCookies(res, newAccessToken);
+
+    return res.status(200).json({ success: true, message: "Token refreshed" });
   };
 
 export const loginWithAcessToken =

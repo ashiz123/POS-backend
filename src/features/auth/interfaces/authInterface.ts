@@ -11,9 +11,11 @@ export interface IUserProps {
   email: string;
   phone: string;
   password?: string;
-  role: "admin" | "owner" | "accountant" | "cashier" | "manager" | "employee";
+  role?: "admin" | "owner" | "accountant" | "cashier" | "manager" | "employee";
   new: boolean;
-  activationToken?: string;
+  is_verified: boolean;
+  verificationToken?: string;
+  verificationExpires?: Date;
   createdBy?: string | Types.ObjectId;
 }
 
@@ -32,6 +34,7 @@ export interface IUserDocument extends Omit<IUserProps, "createdBy">, Document {
 
 export interface IAuthService {
   register(data: IUserProps): Promise<IUserDocument>;
+  verify(token: string): Promise<IUserDocument>;
   login(
     email: string,
     password: string,
@@ -45,8 +48,7 @@ export interface IAuthService {
 
 export interface IAuthRepository {
   createUser(data: IUserProps): Promise<IUserDocument>;
-  // findById(id: string): Promise<IUser | null>;
-
+  verifyUser(token: string): Promise<IUserDocument>;
   findByEmail(email: string): Promise<IUserDocument | null>;
 }
 

@@ -38,13 +38,13 @@ export class BusinessController implements IBusinessController {
       }
 
       const data: BusinessRequest = BusinessSchemaValidation.parse(req.body); //validation
-      const businessDataWithUser = {
+      const businessWithUser = {
         ...data,
         userId: req.user.userId,
         email: req.user.email,
       };
       const newBusiness: BusinessProps =
-        await this.businessService.create(businessDataWithUser);
+        await this.businessService.create(businessWithUser);
       //request to admin to create the business
       const response: ApiResponse<BusinessProps> = {
         success: true,
