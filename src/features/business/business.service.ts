@@ -1,6 +1,10 @@
 import mongoose, { UpdateQuery } from "mongoose";
 import { IBusinessRepository, IBusinessService } from "./business.type";
-import { BusinessProps, CreateBusinessDTO } from "./business.model";
+import {
+  BusinessProps,
+  BusinessPropsLean,
+  CreateBusinessDTO,
+} from "./business.model";
 import { IUserBusinessRepository } from "../userBusiness/interfaces/userBusiness.interface";
 import { ICryptoService } from "../../utils/token";
 import { IBusinessDocument } from "./database/business_db_model";
@@ -8,9 +12,9 @@ import { IUserRepository } from "../users/user.type";
 import { inject, injectable } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
 import { IInternalNotificationEmitter } from "../../core/notification.emitter";
-
 import { UserStatus } from "../userBusiness/interfaces/userBusiness.interface";
-import { NotFoundError } from "../../errors/httpErrors";
+import { NotFoundError, UnauthorizedError } from "../../errors/httpErrors";
+import { USER_ROLE } from "../auth/user.constant";
 
 export type AuthUserBusinessProps = BusinessProps & { userId: string };
 
@@ -70,7 +74,7 @@ export class BusinessService implements IBusinessService<BusinessProps> {
           {
             userId: data.userId,
             businessId: createdBusiness.id,
-            role: "owner",
+            role: USER_ROLE.OWNER,
             userStatus: UserStatus.PENDING,
           },
           session,
@@ -82,7 +86,7 @@ export class BusinessService implements IBusinessService<BusinessProps> {
       this.notificationEmitter.notify({
         email: admin.email,
         subject: "Activate your business",
-        message: `Activate your account by clicking on this link: http://localhost:3000/api/businessActivation/${data.userId}/${token}`,
+        message: `Activate your account by clicking on this link: http://localhost:3000/api/business/activation/${data.userId}/${token}`,
       });
 
       // withTransaction guarantees newBusiness exists if no error
@@ -167,4 +171,17 @@ export class BusinessService implements IBusinessService<BusinessProps> {
       await session.endSession();
     }
   }
+
+  async getActiveBusinesses(userId: string): Promise<BusinessPropsLean[]> {
+    if (!userId) {
+      throw new UnauthorizedError("User not found");
+    }
+
+    const activeBusinesses =
+      await this.userBusinessRepo.getUserBusinesses(userId);
+
+    return activeBusinesses;
+  }
+
+  // async get
 }

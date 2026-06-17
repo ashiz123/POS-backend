@@ -2,11 +2,7 @@ import { IUserDocument, IUserProps } from "./interfaces/authInterface.js";
 import { IAuthRepository } from "./interfaces/authInterface.js";
 import User from "./auth.model.js";
 import { isMongoDuplicateKeyError } from "../../errors/guard.js";
-import {
-  BadRequestError,
-  ConflictError,
-  DuplicateEntry,
-} from "../../errors/httpErrors.js";
+import { BadRequestError, DuplicateEntry } from "../../errors/httpErrors.js";
 import { injectable } from "tsyringe";
 
 @injectable()

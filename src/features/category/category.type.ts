@@ -15,15 +15,26 @@ export interface ICategoryRepository extends ICrudRepository<
   UpdateCategoryDTO
 > {
   getChildren(id: string): Promise<ICategoryDocument[]>;
-  getCategoryByBusinessId(businessId: string): Promise<ICategoryDocument[]>;
+  getActiveCategoriesOfBusiness(
+    businessId: string,
+  ): Promise<ICategoryDocument[]>;
+  getAllCategoriesOfBusiness(businessId: string): Promise<ICategoryDocument[]>;
+  getCategoryAndProductByBusiness(
+    businessId: string,
+  ): Promise<ICategoryDocument[]>;
 }
 
 export interface ICategoryService extends ICrudService<ICategory> {
-  getCategoryByBusinessId(businessId: string): Promise<ICategory[]>;
+  getCategoryByBusinessId(
+    businessId: string,
+    showAll?: boolean,
+  ): Promise<ICategory[]>;
+  getCategoryWithProduct(businessId: string): Promise<ICategory[]>;
 }
 
 export interface ICategoryController extends ICrudController {
-  getCategoriesByBusiness: RouteHandler;
+  getCategoriesOfBusiness: RouteHandler;
+  getCategoryAndProductsByBusiness: RouteHandler;
 }
 
 // export interface ICategoryController{

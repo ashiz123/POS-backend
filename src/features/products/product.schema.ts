@@ -21,13 +21,23 @@ export const ProductSchema: Schema<IProductDocument> = new Schema(
       required: false,
       trim: true,
     },
-    price: {
-      type: Number,
+    slug: {
+      type: String,
       required: true,
+      lowercase: true,
+      trim: true,
+      index: true,
     },
-    costPrice: {
+    sellPrice: {
       type: Number,
       required: true,
+      trim: true,
+    },
+    lowStock: {
+      type: Number,
+      required: false,
+      trim: false,
+      default: null,
     },
     stockType: {
       type: String,
@@ -49,6 +59,13 @@ export const ProductSchema: Schema<IProductDocument> = new Schema(
       ref: "Business",
       required: true,
     },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true, id: true },
 );
+
+ProductSchema.index({ businessId: 1, slug: 1 }, { unique: true });
+ProductSchema.index({ businessId: 1, name: 1 }, { unique: true });

@@ -18,4 +18,5 @@ import "../features/auth/auth.container";
 import "../features/session/session.container";
 import "../features/adminRequest/adminRequest.container";
 import "../features/notification/notification.container";
+import "../features/kiosk/kiosk.container";
 import "../features/terminal/terminalSession/terminalSession.container";

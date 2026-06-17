@@ -166,6 +166,31 @@ export class UserController implements IUserController {
     // }
   };
 
+  listByBusiness = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError("User not found");
+      }
+
+      const { businessId } = req.user;
+
+      if (!businessId) {
+        throw new NotFoundError("Business not found");
+      }
+
+      const userOfBusiness =
+        await this.userService.getUserByBusiness(businessId);
+
+      const response: ApiResponse<IUserProps[]> = {
+        success: true,
+        data: userOfBusiness,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getById = async (req: Request, res: Response, next: NextFunction) => {
     // try {
     //     const userId: string = req.params.id

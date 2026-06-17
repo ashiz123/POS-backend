@@ -1,6 +1,11 @@
 import { ClientSession, Document, Model, Types } from "mongoose";
 import { IUserDocument } from "../../auth/interfaces/authInterface";
 import { UserRole } from "../../auth/auth.type";
+import { IBusinessDocument } from "../../business/database/business_db_model";
+import {
+  BusinessProps,
+  BusinessPropsLean,
+} from "../../business/business.model";
 
 // export type UserRole =
 //     | 'owner'
@@ -113,8 +118,11 @@ export interface IUserBusinessRepository {
   checkUserExist(businessId: string, userId: string): Promise<boolean>;
   getUserRole(userId: string, businessId: string): Promise<string | null>;
   removeUser(userId: string, businessId: string): Promise<boolean>;
-  getBusinessUsers(businessId: string): Promise<IUserDocument[]>;
-  getUserBusinesses(userId: string): Promise<IUserBusinessDocument[]>;
+  getBusinessUsers(
+    businessId: string,
+    roles?: string[],
+  ): Promise<IUserDocument[]>;
+  getUserBusinesses(userId: string): Promise<BusinessPropsLean[]>;
   findAndUpdateByUserIdWithSession({
     userId,
     businessId,

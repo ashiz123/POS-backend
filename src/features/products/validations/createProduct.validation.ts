@@ -7,12 +7,15 @@ const objectIdSchema = z
 const ProductSchema = z
   .object({
     name: z.string(),
-    // barcode: z.string().min(5, 'Barcode must be less than 5 words'),
-
     description: z.string().optional(),
-    price: z.number().positive("Price should be all positive"),
-    costPrice: z.number().positive("Cost price should be positive value"),
+    categoryId: z.string(),
+    slug: z.string().slugify().min(3, "Slug is too short"),
+    sellPrice: z.number().min(1, "Sell price is required"),
+    stockType: z.enum(["stocked", "composite"]),
+    lowStock: z.number().optional(),
     isActive: z.boolean().default(true),
+    // price: z.number().positive("Price should be all positive"),
+    // costPrice: z.number().positive("Cost price should be positive value"),
   })
   .strict();
 

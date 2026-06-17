@@ -23,12 +23,26 @@ export const setAuthCookies = (
   });
 };
 
-export const setRefreshCookies = (res: Response, newAccessToken: string) => {
-  res.cookie("accessToken", newAccessToken, {
+export const setCookies = (
+  res: Response,
+  cookiesName: string,
+  token: string,
+  minute: number = 15,
+) => {
+  res.cookie(cookiesName, token, {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
     path: "/",
-    maxAge: 15 * 60 * 1000,
+    maxAge: minute * 60 * 1000,
+  });
+};
+
+export const unSetCookies = (res: Response, cookiesName: string) => {
+  res.clearCookie(cookiesName, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
   });
 };

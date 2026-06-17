@@ -6,6 +6,12 @@ import { ICrudController } from "../../shared/crudControllerInterface.ts";
 
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../../types/apiResponseType.ts";
+import { RouteHandler } from "../../shared/baseType.ts";
+import {
+  ITerminalAuthContext,
+  ITerminalAuthData,
+} from "../terminal/terminal.type.ts";
+import { TerminalLoginType } from "../terminal/terminal.model.ts";
 
 export interface CreateUserDTO {
   name: string;
@@ -14,7 +20,7 @@ export interface CreateUserDTO {
   role: string;
   address: string;
   businessId: string;
-  activationToken?: string;
+  verificationToken?: string;
 }
 
 export type UpdateUserDTO = Partial<Omit<CreateUserDTO, "activationToken">>;
@@ -36,6 +42,10 @@ export type IUserRepository = ICrudRepository<
     userData: CreateUserDTO,
     session: ClientSession,
   ): Promise<{ user: IUserDocument; newUser: boolean }>;
+  getUserByBusinessId(businessId: string): Promise<IUserProps[]>;
+  getAuthorizedContext(
+    terminalLoginData: TerminalLoginType,
+  ): Promise<ITerminalAuthData>;
 };
 
 export type IUserService = {
@@ -53,6 +63,7 @@ export type IUserService = {
   ): Promise<boolean>;
 
   getUserById(id: string): Promise<IUserProps | null>;
+  getUserByBusiness(businessId: string): Promise<IUserProps[]>;
 };
 
 export interface IUserController extends ICrudController {
@@ -64,16 +75,10 @@ export interface IUserController extends ICrudController {
   ) => Promise<void>;
 
   // Show the set-password form (activation form)
-  activateFormWithPassword: (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => Promise<void>;
+  activateFormWithPassword: RouteHandler;
 
   // Activate user account and set password
-  updateActivate: (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => Promise<void>;
+  updateActivate: RouteHandler;
+
+  listByBusiness: RouteHandler;
 }

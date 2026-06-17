@@ -1,4 +1,5 @@
 import {
+  BadRequestError,
   ConflictError,
   NotFoundError,
   UnauthorizedError,
@@ -10,15 +11,10 @@ import {
   IAuthService,
   Payload,
   IUserProps,
+  JwtPayload,
 } from "./interfaces/authInterface.js";
-import { GenerateTokenType, SignInType } from "../../utils/jwtService.js";
-import {
-  LoginFirstResponse,
-  LoginWithSelectBusinessDTO,
-  PreAuthType,
-  UserBusiness,
-  type LoginResponse,
-} from "./types/LoginResponse.type.js";
+import { SignInType, VerifyType } from "../../utils/jwtService.js";
+
 import {
   IUserBusinessDocument,
   IUserBusinessRepository,
@@ -30,6 +26,13 @@ import { ComparePasswordFn } from "../../utils/password.js";
 import { IInternalNotificationEmitter } from "../../core/notification.emitter.js";
 import { ICryptoService } from "../../utils/token.js";
 import { IAuthCode, IAuthCodeRepository } from "../authCode/authCode.type.js";
+import {
+  LoginResponse,
+  LoginWithSelectBusinessDTO,
+  PreAuthPayload,
+  SelectBusinessResponse,
+} from "./auth.type.js";
+import { ACCOUNT_TYPE, AUTH_TYPE, sevenHourInSecond } from "./user.constant.js";
 
 @singleton()
 export class AuthService implements IAuthService {
@@ -49,16 +52,24 @@ export class AuthService implements IAuthService {
     private comparePassword: ComparePasswordFn,
     @inject(TOKENS.JWT_SIGN_IN)
     private jwtSignIn: SignInType,
-    @inject(TOKENS.GENERATE_TOKEN)
-    private generateToken: GenerateTokenType,
+    @inject(TOKENS.VERIFY_JWT)
+    private jwtVerify: VerifyType,
     @inject(TOKENS.CRYPTO_SERVICE)
     private cryptoService: ICryptoService,
   ) {
+    if (!process.env.ACCESS_SECRET) {
+      throw new Error("FATAL: ACCESS_SECRET is not defined in .env");
+    }
+
+    if (!process.env.REFRESH_SECRET) {
+      throw new Error("FATAL: REFRESH_SECRET is not defined in .env");
+    }
+
     this.accessSecret = new TextEncoder().encode(process.env.ACCESS_SECRET);
     this.refreshSecret = new TextEncoder().encode(process.env.REFRESH_SECRET);
   }
 
-  async register(data: IUserProps): Promise<IUserDocument> {
+  async registerUser(data: IUserProps): Promise<IUserDocument> {
     const token = this.cryptoService.createToken();
 
     const user: IUserDocument | null = await this.authRepository.findByEmail(
@@ -71,6 +82,7 @@ export class AuthService implements IAuthService {
 
     const newUserWithToken: IUserProps = {
       ...data,
+      accountType: ACCOUNT_TYPE.BUSINESS,
       verificationToken: this.cryptoService.hashToken(token),
       verificationExpires: new Date(Date.now() + 3600000),
     };
@@ -88,7 +100,8 @@ export class AuthService implements IAuthService {
     return newUser;
   }
 
-  async verify(token: string): Promise<IUserDocument> {
+  //Email verification after registeration
+  async verifyRegister(token: string): Promise<IUserDocument> {
     if (!token) {
       throw new NotFoundError("token not found");
     }
@@ -96,20 +109,19 @@ export class AuthService implements IAuthService {
     return this.authRepository.verifyUser(hashedToken);
   }
 
-  async login(
-    email: string,
-    password: string,
-  ): Promise<IUserDocument | LoginFirstResponse> {
+  async generatePreAuthToken(email: string, password: string): Promise<string> {
+    const accessCode = this.cryptoService.generateActivationCode();
+    const hashedToken = this.cryptoService.hashToken(accessCode);
+
     const user: IUserDocument | null =
       await this.authRepository.findByEmail(email);
 
-    console.log("app secret", process.env.NODE_ENV);
     if (!user) {
-      throw new NotFoundError("User not registered", "authService.loginUser");
+      throw new UnauthorizedError("User not found");
     }
 
-    if (!user.password) {
-      throw new UnauthorizedError("User is not activated yet");
+    if (!user.password || !user.is_verified) {
+      throw new BadRequestError("User is not verified");
     }
 
     const isValid = await this.comparePassword(password, user.password);
@@ -117,52 +129,81 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedError("Invalid credentials");
     }
 
-    if (!user.is_verified) {
-      throw new UnauthorizedError("User is not verified");
-    }
-
-    // Added this for admin
-    if (user.role === "admin") {
-      const accessCode = await this.adminLogin(user);
-
-      if (!accessCode) {
-        throw new NotFoundError("Access code not found");
-      }
-
-      return {
-        role: "admin",
-        email: user.email,
-        otp: accessCode,
-      };
-    }
-
-    const preAuthData: PreAuthType = {
-      sub: user.id,
+    const authCodeData: IAuthCode = {
       email: user.email,
-      type: "preAuth",
+      code: hashedToken,
+      expiresAt: new Date(Date.now() + 5 * 60000),
     };
 
-    const accessToken = await this.jwtSignIn(
-      preAuthData,
+    const authCode = await this.authCodeRepository.create(authCodeData);
+    console.log("auth code", authCode);
+    if (authCode) {
+      const emailData = {
+        email: user.email,
+        subject: "Access Code",
+        message: `Enter this access ${accessCode} code  to authorize fully`,
+      };
+      console.log(emailData);
+      // this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
+    }
+
+    const payload: PreAuthPayload = {
+      sub: user.id,
+      email: user.email,
+      type: AUTH_TYPE.PREAUTH,
+      accountType: user.accountType,
+      isVerified: user.is_verified,
+    };
+
+    //it return preAuth Token
+    return await this.jwtSignIn(payload, this.accessSecret, "5m");
+  }
+
+  async generateAccessToken(
+    preAuthToken: string,
+    otp: string,
+  ): Promise<LoginResponse> {
+    const { sub, email, accountType } = await this.jwtVerify(
+      preAuthToken,
       this.accessSecret,
-      "15m",
     );
+
+    const hashedOtp = this.cryptoService.hashToken(otp);
+    const authUser = await this.authCodeRepository.getByEmail(email, hashedOtp);
+
+    if (!authUser) {
+      throw new UnauthorizedError("User not found");
+    }
+
+    await this.authCodeRepository.delete(authUser.id);
+
+    const authData = {
+      sub: sub,
+      email: authUser.email,
+      accountType: accountType,
+      type: AUTH_TYPE.APP_ACCESS,
+      isVerified: true,
+    } as unknown as PreAuthPayload;
+
+    const accessToken = await this.jwtSignIn(authData, this.accessSecret, "1m");
     const refreshToken = await this.jwtSignIn(
-      preAuthData,
+      authData,
       this.refreshSecret,
       "7h",
     );
 
+    await this.session.createSession(refreshToken, authData, sevenHourInSecond); //changed to refreshToken strogin
+
     return {
-      userData: user,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      accessToken,
+      refreshToken,
+      authData,
     };
   }
 
-  async loginWithSelectBusiness(
+  async selectBusiness(
     data: LoginWithSelectBusinessDTO,
-  ): Promise<LoginResponse> {
+  ): Promise<SelectBusinessResponse> {
     const userBusiness: IUserBusinessDocument | null =
       await this.userBusinessRepository.getUserBusiness(
         data.userId,
@@ -185,12 +226,16 @@ export class AuthService implements IAuthService {
       type: "access",
     };
 
-    const token = await this.generateToken(payload);
-    await this.session.createSession(token, payload);
+    const businessToken = await this.jwtSignIn(
+      payload,
+      this.accessSecret,
+      "5h",
+    ); //business
+    await this.session.createSession(businessToken, payload);
 
     return {
       email: data.email,
-      token: token,
+      token: businessToken,
     };
   }
 
@@ -199,69 +244,31 @@ export class AuthService implements IAuthService {
     return true;
   }
 
-  async adminLogin(user: IUserDocument): Promise<string | null> {
-    const accessCode = this.cryptoService.generateActivationCode();
-    const hashedToken = this.cryptoService.hashToken(accessCode);
+  async generateNewAccessToken(refreshToken: string): Promise<string> {
+    const verify: JwtPayload = await this.jwtVerify(
+      refreshToken,
+      this.refreshSecret,
+    );
 
-    const authCodeData: IAuthCode = {
-      email: user.email,
-      code: hashedToken,
-      expiresAt: new Date(Date.now() + 5 * 60000),
-    };
-
-    await this.authCodeRepository.create(authCodeData);
-
-    const emailData = {
-      email: user.email,
-      subject: "Access Code",
-      message: `Enter this access${accessCode} code  to authorize fully`,
-    };
-    this.notificationEmitter.notify(emailData);
-    return null;
-  }
-
-  async adminVerifyToken(email: string, otp: string): Promise<string> {
-    const authRecord = await this.authCodeRepository.getByEmail(email);
-
-    if (!authRecord) {
-      throw new Error("Invalid access code or it has expired");
+    if (!verify) {
+      throw new UnauthorizedError("Invalid refresh token");
     }
 
-    const isMatch = await this.comparePassword(otp, authRecord.code);
+    const payload = await this.session.getSession(refreshToken);
 
-    if (!isMatch) {
-      throw new Error("Invalid access code");
+    if (!payload) {
+      throw new UnauthorizedError("Authenticated user not found");
     }
 
-    await this.authCodeRepository.delete(authRecord.id);
+    const newAccessToken = await this.jwtSignIn(
+      payload,
+      this.accessSecret,
+      "1m",
+    );
 
-    const adminData = {
-      email: authRecord.email,
-      role: "admin",
-      type: "access",
-    };
+    //check this line
+    // await this.session.createSession(newAccessToken, payload);
 
-    const token = await this.generateToken(adminData);
-    return token;
+    return newAccessToken;
   }
-
-  async setRefreshToken(refreshToken: string): Promise<string> {}
-
-  // async createSession(token: string, payload: Payload) {
-  //     await this.redis.set(
-  //         `session:${token}`,
-  //         JSON.stringify(payload),
-  //         'EX',
-  //         3600
-  //     )
-  //     return
-  // }
-
-  // async getSessionToken(token: string): Promise<Payload> {
-  //     const session = await this.redis.get(`session:${token}`)
-  //     if (!session) {
-  //         throw new NotFoundError('Session not found')
-  //     }
-  //     return JSON.parse(session) as Payload
-  // }
 }

@@ -50,7 +50,7 @@ export class UserService implements IUserService {
         const { user, newUser } = await this.repository.createUserWithSession(
           {
             ...userData,
-            activationToken: this.crytoService.hashToken(token),
+            verificationToken: this.crytoService.hashToken(token),
           },
           session,
         );
@@ -150,5 +150,10 @@ export class UserService implements IUserService {
     }
 
     return true;
+  };
+
+  getUserByBusiness = async (businessId: string): Promise<IUserProps[]> => {
+    const userList = await this.repository.getUserByBusinessId(businessId);
+    return userList;
   };
 }

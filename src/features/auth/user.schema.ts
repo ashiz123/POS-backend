@@ -2,7 +2,7 @@ import { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import { hashPassword } from "../../utils/password.js";
 import { IUserDocument } from "./interfaces/authInterface.js";
-import { USER_ROLE } from "./user.constant.js";
+import { ACCOUNT_TYPE } from "./user.constant.js";
 
 //UserClass and AuthClass is use same schema
 export const UserSchema: Schema<IUserDocument> = new Schema(
@@ -27,11 +27,10 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
       trim: true,
     },
 
-    role: {
+    accountType: {
       type: String,
-      enum: Object.values(USER_ROLE),
-      required: false,
-      trim: true,
+      enum: ACCOUNT_TYPE,
+      Default: ACCOUNT_TYPE.BUSINESS,
     },
 
     password: {
@@ -39,7 +38,7 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
       required: false,
     },
 
-    //not necessary
+    //admin using verification token
     verificationToken: {
       type: String,
       required: false,
@@ -51,13 +50,13 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
       required: false,
     },
 
-    //not necessary
     new: {
       type: Boolean,
       default: true,
       required: true,
     },
 
+    //this must be isVerified
     is_verified: {
       type: Boolean,
       default: false,

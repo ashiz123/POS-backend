@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { BusinessProps } from "./business.model";
+import { BusinessProps, BusinessPropsLean } from "./business.model";
 import { IBusinessService } from "./business.type";
 import { IUserService } from "../users/user.type";
 import { ApiResponse } from "../../types/apiResponseType";
@@ -17,6 +17,7 @@ import { activationSuccess } from "../../utils/businessActivationHtml";
 import { IBusinessController } from "./business.type";
 import { injectable, inject } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
+import { UserRole } from "../auth/auth.type";
 
 export interface AuthRequest extends Request {
   user?: { userId: string; email: string; role?: string };
@@ -72,17 +73,58 @@ export class BusinessController implements IBusinessController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params as { id: string };
-      const business = await this.businessService.getById(id);
+      if (!req.user) {
+        throw new UnauthorizedError("Authorized user not found");
+      }
+
+      const { businessId, role } = req.user;
+
+      if (!businessId) {
+        throw new NotFoundError("Business id not found");
+      }
+
+      const business = await this.businessService.getById(businessId);
+
+      const businessWithRole = {
+        ...(business as BusinessProps),
+        role: role as UserRole,
+      };
+
       if (!business) {
         throw new NotFoundError("Business not found");
       }
       const response: ApiResponse<BusinessProps> = {
         success: true,
-        data: business,
+        data: businessWithRole,
       };
 
       res.status(200).json(response);
+      return;
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getListsByAuthUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError("Authenticated user not found");
+      }
+      const { userId } = req.user;
+      const activeBusinesses: BusinessPropsLean[] =
+        await this.businessService.getActiveBusinesses(userId);
+
+      const response: ApiResponse<BusinessPropsLean[]> = {
+        success: true,
+        data: activeBusinesses,
+      };
+
+      res.status(200).json(response);
+      return;
     } catch (error) {
       next(error);
     }

@@ -6,6 +6,7 @@ type OptionType = {
   exclude: string[];
   middleware: RouteHandler[];
   additionalRoute?: RouteConfig[];
+  overrideRoute?: Record<string, RouteHandler[]>;
   commonPathPrefix?: string;
 };
 
@@ -18,6 +19,7 @@ export function createCrudRoutes(
     middleware,
     exclude,
     additionalRoute,
+    overrideRoute = {},
     commonPathPrefix = "",
   } = options;
 
@@ -31,7 +33,7 @@ export function createCrudRoutes(
     {
       name: "show",
       method: "get",
-      path: "/:id",
+      path: "/show/:id", //i changed to show
       handler: controller.getById,
     },
     {
@@ -60,9 +62,11 @@ export function createCrudRoutes(
 
   routes.forEach((route) => {
     if (!exclude.includes(route.name)) {
+      const resolvedMiddleware = overrideRoute[route.name] ?? middleware;
+
       router[route.method](
         commonPathPrefix + route.path,
-        ...middleware,
+        ...resolvedMiddleware,
         route.handler,
       );
     }

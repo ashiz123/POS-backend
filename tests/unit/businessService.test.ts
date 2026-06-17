@@ -165,7 +165,7 @@ describe("Business service test", () => {
       expect(mockNotificationEmitter.notify).toHaveBeenCalledWith({
         email: adminUser.email,
         subject: "Activate your business",
-        message: `Activate your account by clicking on this link: http://localhost:3000/api/businessActivation/${newBusiness.userId}/${mockToken}`,
+        message: `Activate your account by clicking on this link: http://localhost:3000/api/business/activation/${newBusiness.userId}/${mockToken}`,
       });
     });
 

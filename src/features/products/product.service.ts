@@ -54,6 +54,7 @@ export class ProductService implements IProductService {
   getProductsByCategory = async (
     categoryId: string,
   ): Promise<IProduct[] | null> => {
+    console.log("categoryId in service", categoryId);
     return this.repo.filterProductByCategoryId(categoryId);
   };
 

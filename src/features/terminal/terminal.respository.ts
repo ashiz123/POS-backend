@@ -7,13 +7,10 @@ import {
   UpdateTerminalDTO,
 } from "./terminal.model";
 import { injectable } from "tsyringe";
-import {
-  ITerminalAuthContext,
-  ITerminalRepository,
-  PopulatedTerminal,
-} from "./terminal.type";
-import { ClientSession, Types } from "mongoose";
+import { PopulatedTerminal } from "./terminal.type";
+import { ClientSession } from "mongoose";
 import { TERMINAL_STATUS } from "./terminal.constant";
+import { ITerminalRepository } from "./terminal.interface";
 
 @injectable()
 export class TerminalRepository
@@ -44,6 +41,7 @@ export class TerminalRepository
       {
         $set: {
           status: TERMINAL_STATUS.APPROVED,
+          activationCode: data.activationCode,
           approvedAt: data.approvedAt,
           approvedBy: data.approvedBy,
         },
@@ -52,7 +50,7 @@ export class TerminalRepository
     );
   }
 
-  async getTerminalById(
+  async getTerminalByIdAndBusinessId(
     terminalId: string,
     businessId: string,
   ): Promise<TerminalDocument | null> {
@@ -60,6 +58,24 @@ export class TerminalRepository
       _id: terminalId,
       businessId: businessId,
     });
+  }
+
+  async getTerminalByActivationCodeAndUpdate(
+    activationCode: string,
+  ): Promise<TerminalDocument | null> {
+    return await this.model.findOneAndUpdate(
+      {
+        activationCode,
+        activationStatus: false,
+      },
+      {
+        $set: {
+          activationCode: null,
+          activationStatus: true,
+        },
+      },
+      { new: true }, // this return the document
+    );
   }
 
   async getTerminalsByBusinessId(
@@ -82,68 +98,5 @@ export class TerminalRepository
       .exec();
 
     return result as unknown as PopulatedTerminal | null;
-  }
-
-  async getAuthorizedContext(
-    terminalId: string,
-    email: string,
-  ): Promise<ITerminalAuthContext> {
-    const matchTerminal = {
-      $match: { _id: new Types.ObjectId(terminalId) },
-    };
-
-    const lookupUser = {
-      $lookup: {
-        from: "users",
-        pipeline: [
-          { $match: { email: email } },
-          { $project: { _id: 1, email: 1 } },
-        ],
-        as: "user",
-      },
-    };
-
-    const lookUpMembership = {
-      $lookup: {
-        from: "userbusinesses", //this is collection name, not the model name
-        let: { bizId: "$businessId", userId: "$user._id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$bizId"] },
-                  { $eq: ["$userId", "$$userId"] },
-                  { $eq: ["$userStatus", "active"] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "membership",
-      },
-    };
-
-    const formatOutput = {
-      $project: {
-        activationCode: 1,
-        "user._id": 1,
-        "user.email": 1,
-        "membership.role": 1,
-        businessId: 1,
-      },
-    };
-
-    const pipeline = [
-      matchTerminal,
-      lookupUser,
-      { $unwind: "$user" },
-      lookUpMembership,
-      { $unwind: "$membership" },
-      formatOutput,
-    ];
-
-    const [result] = await this.model.aggregate(pipeline);
-    return (result as ITerminalAuthContext) || null;
   }
 }

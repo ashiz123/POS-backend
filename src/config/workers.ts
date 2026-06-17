@@ -1,3 +1,4 @@
-import '../workers/autoCancelOrderWorker'
-import '../workers/sendNotificationToOwnerWorker'
-import '../workers/sendNotifictionToAdminWorker'
+import "../workers/autoCancelOrderWorker";
+import "../workers/stockWorker";
+import "../workers/sendNotificationToOwnerWorker";
+import "../workers/sendNotifictionToAdminWorker";

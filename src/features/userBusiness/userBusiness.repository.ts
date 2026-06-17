@@ -8,7 +8,8 @@ import {
   FindUserArgs,
   // UpdateUserRoleDTO,
 } from "./interfaces/userBusiness.interface.js";
-import { IUserDocument, IUserProps } from "../auth/interfaces/authInterface.js";
+import { IUserDocument } from "../auth/interfaces/authInterface.js";
+import { BusinessPropsLean } from "../business/business.model.js";
 
 @injectable()
 export class UserBusinessRepository implements IUserBusinessRepository {
@@ -65,10 +66,10 @@ export class UserBusinessRepository implements IUserBusinessRepository {
     token: string,
   ): Promise<IUserBusinessDocument | null> {
     return await this.model.findOneAndUpdate(
-      { activationToken: token },
+      { verificationToken: token },
       {
         userStatus: "active",
-        $unset: { activationToken: "" },
+        $unset: { verificationToken: "" },
       },
       { new: true }, //return updated doc
     );
@@ -141,11 +142,15 @@ export class UserBusinessRepository implements IUserBusinessRepository {
     return !!result;
   }
 
-  async getBusinessUsers(businessId: string): Promise<IUserDocument[]> {
+  async getBusinessUsers(
+    businessId: string,
+    roles?: string[],
+  ): Promise<IUserDocument[]> {
     const businessUsers = await this.model
       .find({
         businessId,
         userStatus: "active",
+        ...(roles && roles.length > 0 && { role: { $in: roles } }), //if roles exist than include the role
       })
       .populate<{ userId: IUserDocument }>("userId");
 
@@ -154,13 +159,21 @@ export class UserBusinessRepository implements IUserBusinessRepository {
     return users;
   }
 
-  async getUserBusinesses(userId: string): Promise<IUserBusinessDocument[]> {
-    const businesses = await this.model.find({
-      userId: new Types.ObjectId(userId),
-      userStatus: "active",
-    });
+  //lean is added . lean must have all type exact like document. document have some hidden function accept data.
+  async getUserBusinesses(userId: string): Promise<BusinessPropsLean[]> {
+    const links = await this.model
+      .find({
+        userId: new Types.ObjectId(userId),
+        userStatus: "active",
+      })
+      .populate("businessId")
+      .lean();
 
-    return businesses;
+    const businessList = links.map(
+      (link) => link.businessId as unknown as BusinessPropsLean,
+    );
+
+    return businessList;
   }
 }
 

@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { productService } from "./product.service";
 
 import {
   CreateProductSchema,
@@ -84,6 +83,7 @@ export class ProductController implements IProductController {
       if (!businessId) {
         throw new NotFoundError("Business not found to create product");
       }
+
       const newProductData = { ...data, businessId };
       const newProduct = await this.productService.create(newProductData);
       const response: ApiResponse<IProduct> = {
@@ -166,5 +166,3 @@ export class ProductController implements IProductController {
     }
   };
 }
-
-export const productController = new ProductController(productService);

@@ -1,9 +1,10 @@
 export type Roles = "owner" | "manager" | "cashier" | "admin";
 
 const CASHIER_PERMISSIONS = [
-  "view_products",
+  "view_product",
   "create_order",
   "scan_items",
+  "view_category",
 ] as const;
 
 const MANAGER_PERMISSIONS = [
@@ -18,9 +19,11 @@ const OWNER_PERMISSIONS = [
   "manage_business",
   "create_business",
   "manage_category",
+  "create_category",
   "edit_settings",
   "view_reports",
   "create_terminal",
+  "view_orders",
 ] as const;
 
 const ADMIN_PERMISSIONS = [

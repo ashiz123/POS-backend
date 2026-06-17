@@ -22,7 +22,8 @@ tests/unitJs/*.js
 .env
 .env.test
 .env.staging
-.env.production
+.env.development
+.env.docker.test
 .env.production
 .env.*.local
 

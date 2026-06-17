@@ -8,7 +8,7 @@ export const BusinessSchemaValidation = z
     website: z.string().optional(),
     email: z.email().optional(),
     phone: z.string().optional(),
-    businessType: z.string().optional(),
+    businessType: z.string(),
   })
   .strict();
 

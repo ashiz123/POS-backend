@@ -57,6 +57,7 @@ export class CategoryController implements ICategoryController {
 
       const categoryDTO = {
         ...data,
+        position: Number(data.position),
         businessId,
       };
       const newCategory = await this.categoryService.create(categoryDTO);
@@ -121,7 +122,7 @@ export class CategoryController implements ICategoryController {
     }
   };
 
-  getCategoriesByBusiness = async (
+  getCategoriesOfBusiness = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -132,6 +133,7 @@ export class CategoryController implements ICategoryController {
       }
 
       const { businessId } = req.user;
+      const showAll: boolean = req.query.all === "true";
 
       if (!businessId) {
         throw new NotFoundError(
@@ -141,8 +143,10 @@ export class CategoryController implements ICategoryController {
 
       console.log("business id", businessId);
 
-      const categories =
-        await this.categoryService.getCategoryByBusinessId(businessId);
+      const categories = await this.categoryService.getCategoryByBusinessId(
+        businessId,
+        showAll,
+      );
 
       const response: ApiResponse<ICategory[]> = {
         success: true,
@@ -150,6 +154,35 @@ export class CategoryController implements ICategoryController {
       };
       res.status(200).json(response);
     } catch (error: any) {
+      next(error);
+    }
+  };
+
+  getCategoryAndProductsByBusiness = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      if (!req.terminal) {
+        throw new UnauthorizedError("User is not authorized");
+      }
+
+      const { businessId } = req.terminal;
+
+      if (!businessId) {
+        throw new NotFoundError("Business not found");
+      }
+
+      const categoryWithProduct =
+        await this.categoryService.getCategoryWithProduct(businessId);
+
+      const response: ApiResponse<ICategory[]> = {
+        success: true,
+        data: categoryWithProduct,
+      };
+      res.status(200).json(response);
+    } catch (error) {
       next(error);
     }
   };
