@@ -1,5 +1,5 @@
 export const businessActivationForm = (token: string, userId: string) => {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
       <head>
@@ -30,7 +30,7 @@ export const businessActivationForm = (token: string, userId: string) => {
             Do you want to proceed?
           </p>
 
-          <form method="POST" action="/api/businessActivation/${userId}/${token}">
+          <form method="POST" action="/api/business/activation/${userId}/${token}">
             <button type="submit">Activate</button>
             <button type="button" onclick="window.location.href='/'">
               Cancel
@@ -39,11 +39,11 @@ export const businessActivationForm = (token: string, userId: string) => {
         </div>
       </body>
     </html>
-  `
-}
+  `;
+};
 
 export const activationSuccess = () => {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
       <head>
@@ -70,5 +70,5 @@ export const activationSuccess = () => {
         </div>
       </body>
     </html>
-  `
-}
+  `;
+};

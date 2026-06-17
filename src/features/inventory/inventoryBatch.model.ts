@@ -1,27 +1,36 @@
-import { Document, model, Types } from 'mongoose'
-import { InventoryBatchSchema } from './inventoryBatch.schema'
+import { Document, model, Types } from "mongoose";
+import { InventoryBatchSchema } from "./inventoryBatch.schema";
 
 export interface InventoryBatchBase {
-    batchNumber: string
-    quantity: number
-    price: number
-    expiryDate: Date
-    deletedAt?: Date
+  _id: string | Types.ObjectId;
+  batchNumber: string;
+  quantity: number;
+  price: number;
+  expiryDate: Date;
+  deletedAt?: Date;
 }
 
 export interface InventoryBatchDocument extends InventoryBatchBase, Document {
-    productId: Types.ObjectId
-    createdAt: Date
-    updatedAt: Date
+  _id: Types.ObjectId;
+  productId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface CreateInventoryBatchDTO extends InventoryBatchBase {
-    productId: string
+export interface CreateInventoryBatchDTO extends Omit<
+  InventoryBatchBase,
+  "_id"
+> {
+  productId: string;
 }
 
-export type UpdateInventoryBatchDTO = Partial<InventoryBatchBase>
+export type InventoryBatchResponse = Omit<InventoryBatchBase, "_id"> & {
+  id: string; // Switches the key name to clean 'id'
+};
+
+export type UpdateInventoryBatchDTO = Partial<InventoryBatchBase>;
 
 export const InventoryBatchModel = model<InventoryBatchDocument>(
-    'InventoryBatch',
-    InventoryBatchSchema
-)
+  "InventoryBatch",
+  InventoryBatchSchema,
+);

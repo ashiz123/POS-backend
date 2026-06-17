@@ -26,10 +26,10 @@ export class CategoryService implements ICategoryService {
   }
 
   async create(data: Partial<ICategory>): Promise<ICategory> {
-    console.log("service businessId", data.businessId);
     const persistenceData: CreateCategoryDTO = {
       ...(data as CategoryRequest),
       businessId: new Types.ObjectId(data.businessId),
+      position: data.position,
       parentCategoryId: data.parentCategoryId
         ? new Types.ObjectId(data.parentCategoryId)
         : undefined,
@@ -55,12 +55,31 @@ export class CategoryService implements ICategoryService {
     return this.repo.delete(id);
   }
 
-  async getCategoryByBusinessId(businessId: string): Promise<ICategory[]> {
-    const categories = await this.repo.getCategoryByBusinessId(businessId);
+  async getCategoryByBusinessId(
+    businessId: string,
+    showAll: boolean,
+  ): Promise<ICategory[]> {
+    const categories = showAll
+      ? await this.repo.getAllCategoriesOfBusiness(businessId)
+      : await this.repo.getActiveCategoriesOfBusiness(businessId);
+
     if (!categories || categories.length === 0) {
       throw new NotFoundError("No categories found for this business");
     }
 
     return categories;
+  }
+
+  async getCategoryWithProduct(businessId: string): Promise<ICategory[]> {
+    console.log("businessId here", businessId);
+    const data = await this.repo.getCategoryAndProductByBusiness(businessId);
+    console.log("data", data);
+    if (!data || data.length === 0) {
+      throw new NotFoundError("Category with product of business not found");
+    }
+
+    console.log("data", data);
+
+    return data;
   }
 }

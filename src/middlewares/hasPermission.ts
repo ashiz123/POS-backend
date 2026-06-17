@@ -1,6 +1,9 @@
-import { Request, Response, NextFunction } from 'express'
-import { ForbiddenError } from '../errors/httpErrors'
-import { Roles, ROLE_PERMISSIONS } from '../utils/userPermission'
+import { Request, Response, NextFunction } from "express";
+import { ForbiddenError } from "../errors/httpErrors";
+import { Roles, ROLE_PERMISSIONS } from "../utils/userPermission";
+import { ACCOUNT_TYPE } from "../features/auth/user.constant";
+import { log } from "winston";
+import { logger } from "./logHandler";
 
 /**
  * STEPS PERFORMED:
@@ -11,29 +14,29 @@ import { Roles, ROLE_PERMISSIONS } from '../utils/userPermission'
  * 5. If exists, go to next line of code; else, throw forbidden error
  */
 export const hasPermission = (permissionName: string) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const userRole = req.user?.role
-        console.log('user role', userRole)
-        if (!userRole) {
-            return next(
-                new ForbiddenError(
-                    'Authentication required to check permission first.'
-                )
-            )
-        }
+  return (req: Request, res: Response, next: NextFunction) => {
+    const accountType = req.user?.accountType;
+    const userRole = req.user?.role;
 
-        //admin can access everything
-        if (userRole === 'admin') {
-            return next()
-        }
-
-        //other user type need permission
-        const allowPermissions = ROLE_PERMISSIONS[userRole as Roles]
-
-        if (allowPermissions && allowPermissions.includes(permissionName)) {
-            return next()
-        }
-
-        next(new ForbiddenError('Permission denied'))
+    if (accountType === ACCOUNT_TYPE.ADMIN) {
+      return next();
     }
-}
+
+    console.log("user role", userRole);
+
+    if (!userRole) {
+      logger.error("Role required for business account type");
+      return next(new ForbiddenError("Permission denied"));
+    }
+
+    //other user type need permission
+    const allowPermissions = ROLE_PERMISSIONS[userRole as Roles];
+    console.log("allow permissions", allowPermissions);
+
+    if (allowPermissions && allowPermissions.includes(permissionName)) {
+      return next();
+    }
+
+    next(new ForbiddenError("Permission denied"));
+  };
+};

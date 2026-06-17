@@ -1,0 +1,17 @@
+{
+  "features": {
+    "edit_prediction_provider": "ollama"
+  },
+  "language_models": {
+    "ollama": {
+      "api_url": "http://localhost:11434",
+      "available_models": [
+        {
+          "name": "qwen2.5-coder:1.5b",
+          "display_name": "Qwen 2.5 Coder 1.5B",
+          "max_tokens": 4096
+        }
+      ]
+    }
+  }
+}

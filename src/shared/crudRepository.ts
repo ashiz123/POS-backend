@@ -29,7 +29,10 @@ export abstract class CrudRepository<
   }
 
   async findById(id: string): Promise<T | null> {
-    return this.model.findOne({ _id: id, deletedAt: null });
+    // return this.model.findOne({ _id: id, deletedAt: null });
+    return this.model
+      .findOne({ _id: id, deletedAt: null })
+      .lean() as Promise<T | null>;
   }
 
   async update(id: string, data: UpdateQuery<UpdateDTO>): Promise<T | null> {

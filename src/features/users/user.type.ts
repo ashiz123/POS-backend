@@ -1,83 +1,84 @@
-import { ClientSession } from 'mongoose'
+import { ClientSession } from "mongoose";
 
-import { ICrudRepository } from '../../shared/crudRepository'
-import { IUserDocument, IUserProps } from '../auth/interfaces/authInterface'
-import { ICrudController } from '../../shared/crudControllerInterface.ts'
+import { ICrudRepository } from "../../shared/crudRepository";
+import { IUserDocument, IUserProps } from "../auth/interfaces/authInterface";
+import { ICrudController } from "../../shared/crudControllerInterface.ts";
 
-import { Request, Response, NextFunction } from 'express'
-import { ApiResponse } from '../../types/apiResponseType.ts'
+import { Request, Response, NextFunction } from "express";
+import { ApiResponse } from "../../types/apiResponseType.ts";
+import { RouteHandler } from "../../shared/baseType.ts";
+import {
+  ITerminalAuthContext,
+  ITerminalAuthData,
+} from "../terminal/terminal.type.ts";
+import { TerminalLoginType } from "../terminal/terminal.model.ts";
 
 export interface CreateUserDTO {
-    name: string
-    email: string
-    phone: string
-    address: string
-    status: string
-    role: 'admin' | 'manager' | 'cashier' | 'employee' | 'owner'
-    businessId: string
-    activationToken?: string
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  address: string;
+  businessId: string;
+  verificationToken?: string;
 }
 
-export type UpdateUserDTO = Partial<Omit<CreateUserDTO, 'activationToken'>>
+export type UpdateUserDTO = Partial<Omit<CreateUserDTO, "activationToken">>;
 
 export type IUserRepository = ICrudRepository<
-    IUserDocument,
-    CreateUserDTO,
-    UpdateUserDTO
+  IUserDocument,
+  CreateUserDTO,
+  UpdateUserDTO
 > & {
-    findAndUpdateByTokenWithSession(
-        token: string,
-        hashedPassword: string,
-        session: ClientSession
-    ): Promise<IUserDocument | null>
+  findAndUpdateByTokenWithSession(
+    token: string,
+    hashedPassword: string,
+    session: ClientSession,
+  ): Promise<IUserDocument | null>;
 
-    getAdmin(): Promise<IUserDocument | null>
-    getAllAdmin(): Promise<IUserDocument[]>
-    createUserWithSession(
-        userData: CreateUserDTO,
-        session: ClientSession
-    ): Promise<{ user: IUserDocument; newUser: boolean }>
-}
+  getAdmin(): Promise<IUserDocument | null>;
+  getAllAdmin(): Promise<IUserDocument[]>;
+  createUserWithSession(
+    userData: CreateUserDTO,
+    session: ClientSession,
+  ): Promise<{ user: IUserDocument; newUser: boolean }>;
+  getUserByBusinessId(businessId: string): Promise<IUserProps[]>;
+  getAuthorizedContext(
+    terminalLoginData: TerminalLoginType,
+  ): Promise<ITerminalAuthData>;
+};
 
 export type IUserService = {
-    // activateUser(token: string, password: string): Promise<IUserProps | null>
-    createUser(
-        newUser: CreateUserDTO,
-        createdBy: string
-    ): Promise<IUserDocument>
-    activateUserWithPassword(
-        businessId: string,
-        token: string,
-        password: string
-    ): Promise<IUserDocument | null>
-    activateUserWithoutPassword(
-        userId: string,
-        businessId: string,
-        role: string
-    ): Promise<boolean>
+  // activateUser(token: string, password: string): Promise<IUserProps | null>
+  createUser(newUser: CreateUserDTO, createdBy: string): Promise<IUserDocument>;
+  activateUserWithPassword(
+    businessId: string,
+    token: string,
+    password: string,
+  ): Promise<IUserDocument | null>;
+  activateUserWithoutPassword(
+    userId: string,
+    businessId: string,
+    role?: string,
+  ): Promise<boolean>;
 
-    getUserById(id: string): Promise<IUserProps | null>
-}
+  getUserById(id: string): Promise<IUserProps | null>;
+  getUserByBusiness(businessId: string): Promise<IUserProps[]>;
+};
 
 export interface IUserController extends ICrudController {
-    // Create a new user
-    create: (
-        req: Request,
-        res: Response<ApiResponse<IUserProps>>,
-        next: NextFunction
-    ) => Promise<void>
+  // Create a new user
+  create: (
+    req: Request,
+    res: Response<ApiResponse<IUserProps>>,
+    next: NextFunction,
+  ) => Promise<void>;
 
-    // Show the set-password form (activation form)
-    activateFormWithPassword: (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => Promise<void>
+  // Show the set-password form (activation form)
+  activateFormWithPassword: RouteHandler;
 
-    // Activate user account and set password
-    updateActivate: (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => Promise<void>
+  // Activate user account and set password
+  updateActivate: RouteHandler;
+
+  listByBusiness: RouteHandler;
 }

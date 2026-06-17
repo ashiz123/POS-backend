@@ -50,7 +50,7 @@ export class UserService implements IUserService {
         const { user, newUser } = await this.repository.createUserWithSession(
           {
             ...userData,
-            activationToken: this.crytoService.hashToken(token),
+            verificationToken: this.crytoService.hashToken(token),
           },
           session,
         );
@@ -117,12 +117,11 @@ export class UserService implements IUserService {
         throw new Error("User not found");
       }
 
-      await this.userBusinessRepository.findAndUpdateByUserIdWithSession(
-        updatedUser.id,
-        updatedUser.role,
-        businessId,
-        session,
-      );
+      await this.userBusinessRepository.findAndUpdateByUserIdWithSession({
+        userId: updatedUser.id,
+        businessId: businessId,
+        session: session,
+      });
 
       await session.commitTransaction();
 
@@ -139,19 +138,22 @@ export class UserService implements IUserService {
   activateUserWithoutPassword = async (
     userId: string,
     businessId: string,
-    role: string,
   ): Promise<boolean> => {
     const userBusinessUpdate =
-      await this.userBusinessRepository.findAndUpdateByUserIdWithSession(
-        userId,
-        businessId,
-        role,
-      );
+      await this.userBusinessRepository.findAndUpdateByUserIdWithSession({
+        userId: userId,
+        businessId: businessId,
+      });
 
     if (!userBusinessUpdate) {
       throw new Error("User not found");
     }
 
     return true;
+  };
+
+  getUserByBusiness = async (businessId: string): Promise<IUserProps[]> => {
+    const userList = await this.repository.getUserByBusinessId(businessId);
+    return userList;
   };
 }

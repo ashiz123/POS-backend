@@ -6,6 +6,7 @@ export const TOKENS = {
 
   COMPARE_PASSWORD: Symbol.for("ComparePassword"),
   JWT_SIGN_IN: Symbol.for("JwtSignIn"),
+  VERIFY_JWT: Symbol.for("JwtVerify"),
   JWT_TERMINAL_SIGN_IN: Symbol.for("JwtTerminalSignIn"),
   GENERATE_TOKEN: Symbol.for("GenerateToken"),
   CRYPTO_SERVICE: Symbol.for("ICryptoService"),
@@ -72,4 +73,6 @@ export const TOKENS = {
   NOTIFICATION_REPOSITORY: Symbol.for("INotificationRepository"),
   NOTIFICATION_SERVICE: Symbol.for("INotificationService"),
   NOTIFICATION_CONTROLLER: Symbol.for("INotificationController"),
+
+  MENU_CONTROLLER: Symbol.for("IMenuController"),
 };

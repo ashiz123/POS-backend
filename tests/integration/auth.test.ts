@@ -44,7 +44,6 @@ describe.sequential("Authentication test", () => {
         name: "testing only",
         phone: "23333322222",
         email: "testing@gmail.com",
-        role: "owner",
       }),
     );
   });

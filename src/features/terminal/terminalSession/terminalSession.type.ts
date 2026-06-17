@@ -1,34 +1,37 @@
-import { TERMINAL_SESSION_STATUS } from './terminalSession.constant'
+import { TerminalLoginType } from "../terminal.model";
+import { TERMINAL_SESSION_STATUS } from "./terminalSession.constant";
 import {
-    ITerminalSessionDocument,
-    TerminalSessionType,
-} from './terminalSession.model'
+  ITerminalSessionDocument,
+  TerminalSessionType,
+} from "./terminalSession.model";
 
 export type TerminalSessionStatus =
-    (typeof TERMINAL_SESSION_STATUS)[keyof typeof TERMINAL_SESSION_STATUS]
+  (typeof TERMINAL_SESSION_STATUS)[keyof typeof TERMINAL_SESSION_STATUS];
 
 export type TerminalContext = {
-    token: string
-    user: {
-        email: string
-        role: string
-    }
-}
+  sessionAccessToken: string;
+  sessionRefreshToken: string;
+  user: {
+    email: string;
+    role: string;
+  };
+};
 
 export interface ITerminalSessionService {
-    terminalLogin(
-        terminalId: string,
-        email: string,
-        pin: string
-    ): Promise<TerminalContext>
-    terminalLogout(terminalSessionId: string): Promise<boolean>
+  terminalLogin(
+    email: string,
+    password: string,
+    deviceAT: string,
+  ): Promise<TerminalContext>;
+  terminalLogout(terminalSessionId: string): Promise<boolean>;
+  generateSessionToken(refreshSessionToken: string): Promise<string>;
 }
 
 export interface ITerminalSessionRepository {
-    createTerminalSession(
-        data: TerminalSessionType
-    ): Promise<ITerminalSessionDocument>
-    closeTerminalSession(
-        terminalSessionId: string
-    ): Promise<ITerminalSessionDocument | null>
+  createTerminalSession(
+    data: TerminalSessionType,
+  ): Promise<ITerminalSessionDocument>;
+  closeTerminalSession(
+    terminalSessionId: string,
+  ): Promise<ITerminalSessionDocument | null>;
 }

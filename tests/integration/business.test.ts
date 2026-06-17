@@ -26,7 +26,6 @@ const newUser: IUserProps = {
   email: "ashiz@gmail.com",
   password: "ashiz123",
   phone: "234234234",
-  role: "owner",
   new: true,
 };
 
@@ -96,6 +95,7 @@ describe("Business route test", () => {
         .send({ name: "ashiz business", address: "137 shorncliffe road" })
         .set("Authorization", `Bearer ${token}`);
 
+      console.log("response create bsiness", response.body);
       newBusinessId = response.body.data._id;
       console.log("new business id", newBusinessId);
       expect(response.body).toEqual(
