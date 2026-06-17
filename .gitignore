@@ -22,7 +22,8 @@ tests/unitJs/*.js
 .env.test
 .env.staging
 .env.production
-.env.production
+.env.development
+
 .env.*.local
 
 # OS files
