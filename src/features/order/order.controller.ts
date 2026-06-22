@@ -9,7 +9,6 @@ import { OrderType } from "./order.model";
 import { UnauthorizedError } from "../../errors/httpErrors";
 import { AUTH_TYPE } from "../auth/user.constant";
 import { IPaymentIntentDTO } from "../stripe/stripePayment.type";
-import { RequestOrderItemType } from "./orderItems/orderItem.model";
 
 @injectable()
 export class OrderController implements IOrderController {

@@ -17,21 +17,42 @@ export class Database {
       return;
     }
 
-    // 2. Validate Env
-    const mongo_uri = process.env.MONGODB_URL;
-    if (!mongo_uri) {
-      console.error("MONGODB_URL is not defined in environment variables");
-      process.exit(1);
+    const isDevelopment = process.env.NODE_ENV === "development";
+
+    if (isDevelopment) {
+      mongoose.set("debug", true);
+    }
+
+    const dbUrl = process.env.DATABASE_URL || process.env.MONGO_URI;
+    if (!dbUrl) {
+      throw new Error(
+        "Database connection URL is not defined in environment variables",
+      );
     }
 
     console.log("Attempting to connect to MongoDB...");
 
     try {
       mongoose.set("debug", true);
-      const conn = await mongoose.connect(mongo_uri, {
+      const connectionOptions: mongoose.ConnectOptions = {
+        maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
-        directConnection: true,
-      });
+        socketTimeoutMS: 45000,
+      };
+
+      if (isDevelopment) {
+        console.log(
+          "Environment: Development. Enabling directConnection for local replica set.",
+        );
+        (connectionOptions as any).directConnection = true;
+      } else {
+        console.log(
+          "Environment: Production/Other. Bypassing directConnection for Atlas compatibility.",
+        );
+      }
+
+      const conn = await mongoose.connect(dbUrl, connectionOptions);
+
       console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
       console.error("Connection failed with error:", error);
