@@ -21,6 +21,7 @@ CMD [ "npm", "test" ]
 
 #stage 4: builder
 FROM base AS builder
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 RUN npm install
 COPY . .
 RUN npm run build
