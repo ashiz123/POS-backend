@@ -28,7 +28,7 @@ RUN npm run build
 
 #stage 4: production
 FROM base AS production
-RUN npm ci --only=production
+RUN npm --omit=dev
 
 #Copy the compiled /app/dist folder from the builder stage to dist folder
 COPY --from=builder /app/dist ./dist
