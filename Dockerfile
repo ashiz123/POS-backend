@@ -18,8 +18,24 @@ RUN npm install
 COPY . .
 CMD [ "npm", "test" ]
 
-#stage 4: production
-FROM base AS production
+
+#stage 4: builder
+FROM base AS builder
 RUN npm install
 COPY . .
+RUN npm run build
+
+
+#stage 4: production
+FROM base AS production
+RUN npm ci --only=production
+
+#Copy the compiled /app/dist folder from the builder stage to dist folder
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+
+#Switch to non-root 'node' user for production security
+USER node
+
+#Start the compile production build
 CMD ["npm", "start"]

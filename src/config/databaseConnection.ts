@@ -23,7 +23,7 @@ export class Database {
       mongoose.set("debug", true);
     }
 
-    const dbUrl = process.env.DATABASE_URL || process.env.MONGO_URI;
+    const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URL;
     if (!dbUrl) {
       throw new Error(
         "Database connection URL is not defined in environment variables",
