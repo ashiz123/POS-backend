@@ -1,7 +1,7 @@
 import { Router } from "express";
-import coreRoutes from "./routes/core.route";
-import boardingRoutes from "./routes/detail";
-import businessActivationRoute from "./routes/businessActivation.route";
+import coreRoutes from "./core.route";
+import boardingRoutes from "./boarding.route";
+import businessActivationRoute from "./businessActivation.route";
 
 const businessRoutes = Router();
 businessRoutes.use("/detail", boardingRoutes);

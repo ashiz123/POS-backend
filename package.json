@@ -14,7 +14,7 @@
     "test:clear": "rm -rf coverage || true",
     "lint": "eslint",
     "dev": "tsx watch src/index.ts",
-    "build": "NODE_OPTIONS='--max-old-space-size=800' tsc",
+    "build": "tsc --incremental",
     "start": "node dist/index.js",
     "watch": "tsc --watch",
     "format": "prettier . --write",

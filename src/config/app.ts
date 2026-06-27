@@ -13,7 +13,7 @@ import orderRoute from "../features/order/routes/order.route.js";
 import terminalRoute from "../features/terminal/terminal.route.js";
 import notificationRoute from "../features/notification/notification.route.js";
 import { webhookHandler } from "../features/stripe/stripeTerminal.controller.js";
-import businessRoutes from "../features/business/business.routes.js";
+import businessRoutes from "../features/business/routes/business.routes.js";
 import MenuRoutes from "../features/kiosk/kiosk.route.js";
 import inventoryBatchWithProductRoute from "../features/inventory/routes/inventoryBatchWithProduct.route.js";
 import inventoryBatchWithoutProductRoute from "../features/inventory/routes/inventoryBatchWithoutProduct.route.js";

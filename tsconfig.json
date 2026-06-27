@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
+    "outDir": "./dist", //added
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "lib": ["ES2022"],
@@ -12,11 +13,13 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
+    "incremental": true, //added
+    "tsBuildInfoFile": "./.tsbuildinfo", //added
     "sourceMap": true,
     "declaration": false,
     "noImplicitAny": false,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "allowImportingTsExtensions": false, //set to false
+    "noEmit": false, //set to false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
