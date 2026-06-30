@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import {
   ConflictError,
-  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
 } from "../errors/httpErrors";

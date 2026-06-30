@@ -1,7 +1,6 @@
 {
   "name": "ts",
   "version": "1.0.0",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "vitest --config ./vitest.config.ts",
@@ -14,8 +13,9 @@
     "test:clear": "rm -rf coverage || true",
     "lint": "eslint",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc --incremental",
-    "start": "node dist/index.js",
+    "build": "swc src -d dist --copy-files",
+    "type-check": "tsc --noEmit",
+    "start": "node dist/src/index.js",
     "watch": "tsc --watch",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
@@ -26,6 +26,8 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@swc/cli": "^0.8.1",
+    "@swc/core": "^1.15.43",
     "@tsconfig/node22": "^22.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
@@ -40,6 +42,7 @@
     "nodemon": "^3.1.11",
     "prettier": "3.7.4",
     "supertest": "^7.1.4",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",

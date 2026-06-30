@@ -5,10 +5,7 @@ import { TOKENS } from "../config/tokens";
 import { IInventoryBatchRepository } from "../features/inventory/inventoryBatch.type";
 import { redisConnect } from "../config/ioRedisConnection";
 import { IUserBusinessRepository } from "../features/userBusiness/interfaces/userBusiness.interface";
-import {
-  INotificationRepository,
-  INotificationService,
-} from "../features/notification/notification.type";
+import { INotificationService } from "../features/notification/notification.type";
 
 const productRepository = container.resolve<IProductRepository>(
   TOKENS.PRODUCT_REPOSITORY,

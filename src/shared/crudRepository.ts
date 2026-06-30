@@ -1,5 +1,4 @@
 import { Document, Model, UpdateQuery } from "mongoose";
-import { logger } from "../middlewares/logHandler";
 
 export interface ICrudRepository<T, CreateDTO, UpdateDTO> {
   create(data: CreateDTO): Promise<T>;

@@ -1,0 +1,27 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "dynamicImport": true
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "target": "es2022",
+    "keepClassNames": true
+  },
+  "module": {
+    "type": "commonjs",
+    "strict": true
+  }
+}
+
+// १. **`decoratorMetadata: true`**: यो सबैभन्दा मुख्य कुरा हो। यसले `tsyringe` लाई रन-टाइममा तपाईंका क्लासहरू (Classes) कस्ता छन्, के कस्तो डिपेन्डेन्सी छ भन्ने कुरा चिन्न मद्दत गर्छ। यो बिना तपाईंको `tsyringe` ले काम गर्दैन।
+
+// २. **`legacyDecorator: true`**: `tsyringe` अलि पुराना खालका डेकोरेटर सिन्ट्याक्सहरूमा भर पर्छ, त्यसैले यसलाई `true` राख्नु सुरक्षित हुन्छ।
+
+// ३. **`target: "es2022"`**: यसले तपाईंको आधुनिक TypeScript कोडलाई Node.js ले सजिलै बुझ्न सक्ने आधुनिक JavaScript मा रूपान्तरण गर्छ।
+
+// यो फाइललाई आफ्नो प्रोजेक्टको **root** फोल्डरमा (जहाँ `package.json` छ, त्यहीँ) सेभ गर्नुहोस्। त्यसपछि बिल्ड रन गर्दा तपाईंको `tsyringe` का डेकोरेटरहरूले अब राम्ररी काम गर्नेछन्!

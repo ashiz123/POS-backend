@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { ForbiddenError } from "../errors/httpErrors";
 import { Roles, ROLE_PERMISSIONS } from "../utils/userPermission";
 import { ACCOUNT_TYPE } from "../features/auth/user.constant";
-import { log } from "winston";
 import { logger } from "./logHandler";
 
 /**

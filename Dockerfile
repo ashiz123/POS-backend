@@ -22,14 +22,20 @@ CMD [ "npm", "test" ]
 #stage 4: builder
 FROM base AS builder
 ENV NODE_OPTIONS="--max-old-space-size=1024"
+COPY package*.json ./
 RUN npm install
+RUN npm list @swc/cli || (echo "@swc/cli NOT FOUND" && exit 1)
 COPY . .
 RUN npm run build
+
 
 
 #stage 4: production
 FROM base AS production
 RUN npm install --omit=dev
+
+# १. logs फोल्डर बनाउनुहोस् र त्यसको मालिक 'node' युजरलाई बनाउनुहोस्
+RUN mkdir -p logs && chown -R node:node logs
 
 #Copy the compiled /app/dist folder from the builder stage to dist folder
 COPY --from=builder /app/dist ./dist

@@ -100,7 +100,6 @@ export interface IUserBusinessModel extends Model<IUserBusinessDocument> {
 export interface FindUserArgs {
   userId: string;
   businessId: string;
-  role?: string;
   session?: ClientSession;
 }
 
@@ -126,7 +125,6 @@ export interface IUserBusinessRepository {
   findAndUpdateByUserIdWithSession({
     userId,
     businessId,
-    role,
     session,
   }: FindUserArgs): Promise<IUserBusinessDocument | null>;
   findAndUpdateByToken(token: string): Promise<IUserBusinessDocument | null>;

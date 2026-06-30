@@ -5,10 +5,7 @@ import User from "../auth/auth.model";
 import { IUserDocument, IUserProps } from "../auth/interfaces/authInterface";
 import { CreateUserDTO, IUserRepository, UpdateUserDTO } from "./user.type";
 import { TerminalLoginType } from "../terminal/terminal.model";
-import {
-  ITerminalAuthContext,
-  ITerminalAuthData,
-} from "../terminal/terminal.type";
+import { ITerminalAuthData } from "../terminal/terminal.type";
 
 @injectable()
 export class UserRepository

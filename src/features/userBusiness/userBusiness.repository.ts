@@ -44,7 +44,6 @@ export class UserBusinessRepository implements IUserBusinessRepository {
   async findAndUpdateByUserIdWithSession({
     userId,
     businessId,
-    role,
     session,
   }: FindUserArgs): Promise<IUserBusinessDocument | null> {
     console.log("data", userId, businessId);
@@ -55,7 +54,6 @@ export class UserBusinessRepository implements IUserBusinessRepository {
         userStatus: "pending",
       },
       { userStatus: "active" },
-      // { userStatus: "active", role: role }, //role is removed
       { new: true, ...(session ? { session } : {}) },
     );
     return updateUser;

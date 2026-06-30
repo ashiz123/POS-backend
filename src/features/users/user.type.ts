@@ -1,17 +1,12 @@
 import { ClientSession } from "mongoose";
-
 import { ICrudRepository } from "../../shared/crudRepository";
 import { IUserDocument, IUserProps } from "../auth/interfaces/authInterface";
-import { ICrudController } from "../../shared/crudControllerInterface.ts";
-
 import { Request, Response, NextFunction } from "express";
-import { ApiResponse } from "../../types/apiResponseType.ts";
-import { RouteHandler } from "../../shared/baseType.ts";
-import {
-  ITerminalAuthContext,
-  ITerminalAuthData,
-} from "../terminal/terminal.type.ts";
-import { TerminalLoginType } from "../terminal/terminal.model.ts";
+import { TerminalLoginType } from "../terminal/terminal.model";
+import { ITerminalAuthData } from "../terminal/terminal.type";
+import { ICrudController } from "../../shared/crudControllerInterface";
+import { ApiResponse } from "../../types/apiResponseType";
+import { RouteHandler } from "../../shared/baseType";
 
 export interface CreateUserDTO {
   name: string;

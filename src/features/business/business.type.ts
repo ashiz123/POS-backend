@@ -10,7 +10,6 @@ import {
 import { IBusinessDocument } from "./database/business_db_model";
 import { ICrudRepository } from "../../shared/crudRepository";
 import { ICrudService } from "../../shared/crudServiceInterface";
-import { IUserBusinessDocument } from "../userBusiness/interfaces/userBusiness.interface";
 
 export type BusinessController = {
   list: RouteHandler;
