@@ -33,6 +33,7 @@ import {
   SelectBusinessResponse,
 } from "./auth.type.js";
 import { ACCOUNT_TYPE, AUTH_TYPE, sevenHourInSecond } from "./user.constant.js";
+import { baseUrl } from "../../utils/baseUrl.js";
 
 @singleton()
 export class AuthService implements IAuthService {
@@ -88,11 +89,13 @@ export class AuthService implements IAuthService {
     };
 
     const newUser = await this.authRepository.createUser(newUserWithToken);
+
+    const verificationLink = `${baseUrl}/api/auth/verifyUser/${token}`;
     if (newUser) {
       const emailData = {
         email: newUser.email,
         subject: "Access Code",
-        message: `Verify your account : http://localhost:3000/api/auth/verifyUser/${token}`,
+        message: `Verify your account : ${verificationLink}`,
       };
       this.notificationEmitter.notify(emailData);
     }
@@ -144,7 +147,7 @@ export class AuthService implements IAuthService {
         message: `Enter this access ${accessCode} code  to authorize fully`,
       };
       console.log(emailData);
-      // this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
+      this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
     }
 
     const payload: PreAuthPayload = {

@@ -16,8 +16,6 @@ export const authWithBusinessHandler = async (
   try {
     const payload = await verifyToken(token, accessSecret);
 
-    console.log("payload is here", payload);
-
     if (!payload) {
       res.status(401).json({ message: "Unauthorized" });
       return;

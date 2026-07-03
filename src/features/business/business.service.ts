@@ -83,10 +83,13 @@ export class BusinessService implements IBusinessService<BusinessProps> {
         return createdBusiness;
       });
 
+      const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+      const businessActivationLink = `${baseUrl}/api/business/activation/${data.userId}/${token}`;
+
       this.notificationEmitter.notify({
         email: admin.email,
         subject: "Activate your business",
-        message: `Activate your account by clicking on this link: http://localhost:3000/api/business/activation/${data.userId}/${token}`,
+        message: `Activate your account by clicking on this link: ${businessActivationLink}`,
       });
 
       // withTransaction guarantees newBusiness exists if no error

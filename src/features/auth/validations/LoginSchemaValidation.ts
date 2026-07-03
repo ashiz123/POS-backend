@@ -13,5 +13,6 @@ export const LoginSchemaValidation = z
 export const LoginWithBusinessValidation = z
   .object({
     businessId: objectIdSchema,
+    status: z.string(),
   })
   .strict();

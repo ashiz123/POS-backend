@@ -162,7 +162,6 @@ export class UserBusinessRepository implements IUserBusinessRepository {
     const links = await this.model
       .find({
         userId: new Types.ObjectId(userId),
-        userStatus: "active",
       })
       .populate("businessId")
       .lean();

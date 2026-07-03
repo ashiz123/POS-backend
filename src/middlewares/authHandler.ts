@@ -54,11 +54,9 @@ export const authHandler = async (
       userContext.terminalSessionId = terminalSessionId;
     }
 
-    console.log("user context", userContext);
     req.user = userContext;
     next();
   } catch (err) {
-    console.log(err);
     res.status(401).json({ message: "Invalid or expired token" });
     return;
   }

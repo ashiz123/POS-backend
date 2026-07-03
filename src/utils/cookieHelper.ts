@@ -29,20 +29,30 @@ export const setCookies = (
   token: string,
   minute: number = 15,
 ) => {
-  res.cookie(cookiesName, token, {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const cookieData = {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
     path: "/",
+    partitioned: isProduction,
     maxAge: minute * 60 * 1000,
-  });
+  };
+
+  console.log(cookieData);
+
+  res.cookie(cookiesName, token, cookieData);
 };
 
 export const unSetCookies = (res: Response, cookiesName: string) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.clearCookie(cookiesName, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    partitioned: isProduction,
     path: "/",
   });
 };

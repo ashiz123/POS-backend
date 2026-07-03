@@ -6,7 +6,7 @@ import {
   LoginWithBusinessValidation,
 } from "./validations/LoginSchemaValidation.js";
 import { setCookies, unSetCookies } from "../../utils/cookieHelper.js";
-import { UnauthorizedError } from "../../errors/httpErrors.js";
+import { ConflictError, UnauthorizedError } from "../../errors/httpErrors.js";
 import { ACCOUNT_TYPE } from "./user.constant.js";
 
 //business register
@@ -146,7 +146,13 @@ export const loginUserWithBusinessId =
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const request = LoginWithBusinessValidation.parse(req.body);
-      const businessId = request.businessId;
+      const { businessId, status } = request;
+
+      console.log("request", businessId, status);
+
+      if (status != "active") {
+        throw new ConflictError("Business is inactive, Waiting admin response");
+      }
 
       if (!req.user) {
         throw new Error("user not found");
@@ -186,32 +192,26 @@ export const logoutUser =
     // }
 
     // res.status(200).json({ message: "User logged out successfully" });
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-    });
 
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-    });
+    const isProduction: boolean = process.env.NODE_ENV === "production";
 
-    res.clearCookie("businessToken", {
+    const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
       path: "/",
-    });
+      partitioned: isProduction,
+    };
 
-    res.clearCookie("preAuthToken", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
+    const tokensToClear = [
+      "accessToken",
+      "refreshToken",
+      "businessToken",
+      "preAuthToken",
+    ];
+
+    tokensToClear.forEach((tokenName) => {
+      res.clearCookie(tokenName, cookieOptions);
     });
 
     res.status(200).json({

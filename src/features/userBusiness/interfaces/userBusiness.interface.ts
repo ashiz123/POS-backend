@@ -100,6 +100,7 @@ export interface IUserBusinessModel extends Model<IUserBusinessDocument> {
 export interface FindUserArgs {
   userId: string;
   businessId: string;
+  role?: string;
   session?: ClientSession;
 }
 
