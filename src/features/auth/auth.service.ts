@@ -34,6 +34,7 @@ import {
 } from "./auth.type.js";
 import { ACCOUNT_TYPE, AUTH_TYPE, sevenHourInSecond } from "./user.constant.js";
 import { baseUrl } from "../../utils/baseUrl.js";
+import { IBusinessRepository } from "../business/business.type.js";
 
 @singleton()
 export class AuthService implements IAuthService {
@@ -43,6 +44,8 @@ export class AuthService implements IAuthService {
   constructor(
     @inject(TOKENS.AUTH_REPOSITORY) private authRepository: IAuthRepository,
     @inject(TOKENS.SESSION_SERVICE) private session: ISessionService,
+    @inject(TOKENS.BUSINESS_REPOSITORY)
+    private businessRepository: IBusinessRepository,
     @inject(TOKENS.USER_BUSINESS_REPOSITORY)
     private userBusinessRepository: IUserBusinessRepository,
     @inject(TOKENS.NOTIFICATION_EMITTER)
@@ -207,6 +210,13 @@ export class AuthService implements IAuthService {
   async selectBusiness(
     data: LoginWithSelectBusinessDTO,
   ): Promise<SelectBusinessResponse> {
+    const businessStatus: string =
+      await this.businessRepository.getBusinessStatus(data.businessId);
+
+    if (businessStatus != "active") {
+      throw new UnauthorizedError("Business is not active yet");
+    }
+
     const userBusiness: IUserBusinessDocument | null =
       await this.userBusinessRepository.getUserBusiness(
         data.userId,

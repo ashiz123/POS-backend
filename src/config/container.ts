@@ -20,3 +20,4 @@ import "../features/adminRequest/adminRequest.container";
 import "../features/notification/notification.container";
 import "../features/kiosk/kiosk.container";
 import "../features/terminal/terminalSession/terminalSession.container";
+import "../features/dashboard/dashboard.container";

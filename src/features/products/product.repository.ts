@@ -8,7 +8,7 @@ import {
   UpdateProductDTO,
 } from "./product.model";
 import { IProductRepository } from "./product.type";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 @injectable()
 export class ProductRepository
@@ -80,7 +80,7 @@ export class ProductRepository
   }
 
   async getProductByBusinessId(businessId: string): Promise<IProduct[]> {
-    console.log("it comes here. let see");
+
     return this.model
       .find({ businessId: businessId })
       .populate("categoryId")
@@ -93,6 +93,56 @@ export class ProductRepository
     const timestamp = Date.now().toString(36); // shorter
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `${prefix}-${timestamp}-${random}`;
+  }
+
+  async getProductWithLowStock(businessId: string): Promise<IProduct[]> {
+    try {
+      const pipeline = [
+        {
+          '$match': {
+            'businessId': new mongoose.Types.ObjectId(businessId)
+          }
+        }, {
+          '$lookup': {
+            'from': 'inventorybatches',
+            'localField': '_id',
+            'foreignField': 'productId',
+            'as': 'batches'
+          }
+        }, {
+          '$addFields': {
+            'totalStock': {
+              '$sum': '$batches.quantity'
+            }
+          }
+        }, {
+          '$match': {
+            '$expr': {
+              '$lte': [
+                '$totalStock', '$lowStock'
+              ]
+            }
+          }
+        }, {
+          '$project': {
+            'batches': 0
+          }
+        }
+      ]
+
+      const result = await this.model.aggregate<IProduct[]>(pipeline).exec();
+
+      if (!result || result.length == 0) {
+          throw new Error('No any product matched with low stock')
+      }
+
+      return result[0];
+    }
+    catch (error) {
+      console.log(error);
+      throw error;
+    }
+
   }
 }
 

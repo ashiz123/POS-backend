@@ -75,4 +75,7 @@ export const TOKENS = {
   NOTIFICATION_CONTROLLER: Symbol.for("INotificationController"),
 
   MENU_CONTROLLER: Symbol.for("IMenuController"),
+
+  DASHBOARD_CONTROLLER: Symbol.for("DashboardController"),
+  DASHBOARD_SERVICE: Symbol.for("DashboardService"),
 };

@@ -39,3 +39,5 @@ export const OrderItemSchema = new Schema<OrderItemDocument>({
     min: 0,
   },
 });
+
+OrderItemSchema.index({ productId: 1 });

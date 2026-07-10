@@ -1,8 +1,8 @@
 import { injectable } from "tsyringe";
-import { IOrderRepository } from "./order.type";
+import { IOrderRepository, MaximumSold } from "./order.type";
 import { OrderDocument, OrderModel, OrderType } from "./order.model";
+import mongoose, { ClientSession, Mongoose, PipelineStage } from "mongoose";
 
-import { ClientSession } from "mongoose";
 import {
   BadRequestError,
   ConflictError,
@@ -113,7 +113,156 @@ export class OrderRepository implements IOrderRepository {
   }
 
   async orderOfBusiness(businessId: string): Promise<OrderType[]> {
-    const order = await this.order.find({ businessId }).lean();
+    const order = await this.order
+      .find({ businessId })
+      .sort({ createdAt: -1 })
+      .populate("terminalId", "name")
+      .populate({
+        path: "terminalSessionId",
+        populate: {
+          path: "assignId", // This is the field in your TerminalSession schema
+          model: "User", // Explicitly target the 'User' collection/model
+          select: "email", // Only select the field you want from the User collection
+        },
+      })
+      .lean();
     return order;
+  }
+
+  async getSalesByInputDate(businessId: string, inputDate: Date) {
+    // Create a date object for the beginning of today (00:00:00.000)
+
+    console.log("businessId", businessId);
+    const startDate = new Date(inputDate);
+    startDate.setHours(0, 0, 0, 0);
+    console.log("start date", startDate);
+
+    const endDate = new Date(inputDate);
+    endDate.setDate(startDate.getDate() + 1);
+    console.log("end date", endDate);
+
+    try {
+      const pipeline = [
+        {
+          // 1. Filter by business and time (from start of today to now)
+          $match: {
+            businessId: new mongoose.Types.ObjectId(businessId),
+            createdAt: { $gte: startDate, $lt: endDate },
+          },
+        },
+        {
+          // 2. Sum the 'total' field
+          $group: {
+            _id: null,
+            dailyTotal: { $sum: "$total" },
+          },
+        },
+      ];
+
+      const result = await this.order.aggregate(pipeline);
+      console.log("result", result);
+
+      return result.length > 0 ? result[0].dailyTotal : 0;
+    } catch (error) {
+      console.error("Error calculating daily sales:", error);
+      throw error;
+    }
+  }
+
+  async getBestSellingItem(businessId: string): Promise<MaximumSold> {
+    try {
+      //validate Id before query
+      if (!mongoose.Types.ObjectId.isValid(businessId)) {
+        throw new Error("Invalid Business ID format.");
+      }
+
+      const pipeline: PipelineStage[] = [
+        {
+          $match: {
+            businessId: new mongoose.Types.ObjectId(businessId),
+          },
+        },
+        {
+          $unwind: "$items",
+        },
+        {
+          $group: {
+            _id: "$items.productId",
+            totalSold: { $sum: "$items.quantity" },
+            totalRevenue: {
+              $sum: { $multiply: ["$items.quantity", "$items.price"] },
+            },
+          },
+        },
+
+        //sort and limit before project
+        { $sort: { totalSold: -1 } },
+        { $limit: 1 },
+
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id", //matches _id from the group stage (productId)
+            foreignField: "_id", // matches _id in the products collection
+            as: "productDetails",
+          },
+        },
+
+        //Finally project
+        {
+          $project: {
+            _id: 0,
+            productId: "$_id",
+            productInfo: { $arrayElemAt: ["$productDetails", 0] }, //ProductDetails response as array, get the first element and get the name
+            totalSold: 1,
+            totalRevenue: 1,
+          },
+        },
+
+        {
+          $project: {
+            productId: 1,
+            totalSold: 1,
+            totalRevenue: 1,
+            productName: "$productInfo.name",
+          },
+        },
+      ];
+
+      const result = await this.order.aggregate<MaximumSold>(pipeline).exec();
+
+      if (!result || result.length === 0) {
+        throw new Error("No products found for this business.");
+      }
+
+      return result[0];
+    } catch (error) {
+      console.error("Error calculating daily sales:", error);
+      throw error;
+    }
+  }
+
+  async getCancelledOrder(businessId: string): Promise<OrderType[]> {
+    try {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      return await this.order
+        .find({
+          businessId: new mongoose.Types.ObjectId(businessId),
+          status: "cancelled",
+          createdAt: {
+            $gte: today,
+            $lt: tomorrow,
+          },
+        })
+        .exec();
+    } catch (error) {
+      console.error("Error to retrieve cancelled error", error);
+      throw error;
+    }
   }
 }

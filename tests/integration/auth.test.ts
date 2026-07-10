@@ -30,7 +30,7 @@ describe.sequential("Authentication test", () => {
   it("should throw the validation error", async () => {
     const response = await request(app)
       .post("/api/auth/register")
-      .send({ email: "testing@gmail.com" });
+      .send({ email: "ashizthakuri@gmail.com" });
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("Validation Error");
   });

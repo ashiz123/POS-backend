@@ -8,6 +8,13 @@ import {
 import { ClientSession } from "mongoose";
 import { PaymentInputType } from "../payment/payment.validation";
 
+export type MaximumSold = {
+  productId: string;
+  productName: string;
+  totalSold: number;
+  totalRevenue: number;
+};
+
 export interface IOrderController extends ICrudController {
   getOrderByBusiness: RouteHandler;
   completeOrder: RouteHandler;
@@ -54,6 +61,9 @@ export interface IOrderRepository {
     session: ClientSession,
   ): Promise<OrderType | null>;
   orderOfBusiness(businessId: string): Promise<OrderType[]>;
+  getSalesByInputDate(businessId: string, inputDate: Date): Promise<number>;
+  getBestSellingItem(businessId: string): Promise<MaximumSold>;
+  getCancelledOrder(businessId: string): Promise<OrderType[]>;
   // getOrder(orderId: string): Promise<OrderType>
   // updateOrderStatus(orderId: string, status: string): Promise<void>
   // refundOrder(orderId: string): Promise<void>

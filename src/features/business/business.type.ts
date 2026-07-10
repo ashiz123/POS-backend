@@ -40,6 +40,7 @@ export interface IBusinessRepository extends ICrudRepository<
     token: string,
     session: ClientSession,
   ): Promise<IBusinessDocument | null>;
+  getBusinessStatus(businessId: string): Promise<string>;
 }
 
 export interface IBusinessService<T> extends ICrudService<BusinessProps> {

@@ -27,7 +27,7 @@ export const OrderSchema = new Schema<OrderDocument>({
   },
   terminalSessionId: {
     type: Schema.Types.ObjectId,
-    ref: "SessionTerminal",
+    ref: "TerminalSession",
     required: true,
   },
   terminalId: {
@@ -49,3 +49,5 @@ export const OrderSchema = new Schema<OrderDocument>({
     default: Date.now,
   },
 });
+
+OrderSchema.index({ businessId: 1 });

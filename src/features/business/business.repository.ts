@@ -4,6 +4,7 @@ import { CrudRepository } from "../../shared/crudRepository";
 import { CreateBusinessDTO, UpdateBusinessDTO } from "./business.model";
 import { BusinessModel, IBusinessDocument } from "./database/business_db_model";
 import { IBusinessRepository } from "./business.type";
+import { NotFoundError } from "../../errors/httpErrors";
 
 //interface
 
@@ -50,6 +51,20 @@ export class BusinessRepository
       },
       { new: true, session }, //return updated doc
     );
+  }
+
+  async getBusinessStatus(businessId: string): Promise<string> {
+    const business = await this.model
+      .findOne({ _id: businessId })
+      .select("status")
+      .lean() // Returns plain object
+      .exec();
+
+    if (!business) {
+      throw new NotFoundError(`Business ${businessId} not found`);
+    }
+
+    return business.status;
   }
 }
 

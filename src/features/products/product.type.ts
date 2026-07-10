@@ -27,6 +27,7 @@ export interface IProductRepository extends ICrudRepository<
   filterProductByDateRange(fromDate: Date, toDate: Date): Promise<IProduct[]>;
   generateSKU(prefix?: string): string;
   getProductByBusinessId(businessId: string): Promise<IProduct[]>;
+  getProductWithLowStock(businessId: string): Promise<IProduct[]>;
 
   // discountedProduct(): Promise<IProduct[]>
   // mostLikedProduct(): Promise<IProduct | null>

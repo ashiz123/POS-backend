@@ -11,6 +11,7 @@ const MANAGER_PERMISSIONS = [
   ...CASHIER_PERMISSIONS,
   "handle_product",
   "view_sales_reports",
+  "view_dashboard",
 ] as const;
 
 const OWNER_PERMISSIONS = [

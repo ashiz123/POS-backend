@@ -146,20 +146,12 @@ export const loginUserWithBusinessId =
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const request = LoginWithBusinessValidation.parse(req.body);
-      const { businessId, status } = request;
-
-      console.log("request", businessId, status);
-
-      if (status != "active") {
-        throw new ConflictError("Business is inactive, Waiting admin response");
-      }
+      const { businessId } = request;
 
       if (!req.user) {
         throw new Error("user not found");
       }
       const { userId, email } = req.user;
-
-      console.log("userbusiness", userId, businessId);
 
       const data = {
         userId,
@@ -184,7 +176,7 @@ export const loginUserWithBusinessId =
 export const logoutUser =
   (authService: IAuthService) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    // const token = req.headers.authorization?.split(" ")[1] || "";
+    // const token = req.headers.authorization?.split(" ")[1] || "";c
     // const result = await authService.logout(token);
     // if (!result) {
     //   logger.error("Logout user failed");
