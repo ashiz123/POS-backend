@@ -4,7 +4,6 @@ import { inject, injectable } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
 import { UnauthorizedError } from "../../errors/httpErrors";
 
-
 @injectable()
 export class DashboardController implements IDashboardController {
   constructor(
@@ -52,13 +51,6 @@ export class DashboardController implements IDashboardController {
     }
   };
 
-  transactionToday = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    res.json({ count: 10 });
-  };
   //Refund activity
   // orderId, orderDate, amount, terminalId,
   refundOrder = async (req: Request, res: Response, next: NextFunction) => {
@@ -89,20 +81,42 @@ export class DashboardController implements IDashboardController {
     }
   };
 
-  lowStockProducts = async (req: Request, res: Response, next: NextFunction) => {
+  lowStockProducts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-
       const businessId = req.user?.businessId;
       if (!businessId) {
         throw new UnauthorizedError("Unauthorized business");
       }
 
-      const products = await this.dashboardService.lowStockProducts(businessId)
+      const products = await this.dashboardService.lowStockProducts(businessId);
       res.status(200).json(products);
       return;
     } catch (error) {
       console.log(error);
       next(error);
     }
-  }
+  };
+
+  transactionToday = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const businessId = req.user?.businessId;
+      if (!businessId) {
+        throw new UnauthorizedError("Unauthorized business");
+      }
+
+      const todayOrders = await this.dashboardService.todayOrders(businessId);
+      res.status(200).json(todayOrders);
+      return;
+    } catch (error) {
+      next(error);
+    }
+  };
 }

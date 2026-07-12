@@ -64,6 +64,10 @@ export interface IOrderRepository {
   getSalesByInputDate(businessId: string, inputDate: Date): Promise<number>;
   getBestSellingItem(businessId: string): Promise<MaximumSold>;
   getCancelledOrder(businessId: string): Promise<OrderType[]>;
+  getTodaysTransactions(
+    businessId: string,
+    limit?: number,
+  ): Promise<OrderType[]>;
   // getOrder(orderId: string): Promise<OrderType>
   // updateOrderStatus(orderId: string, status: string): Promise<void>
   // refundOrder(orderId: string): Promise<void>

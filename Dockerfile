@@ -19,6 +19,7 @@ COPY . .
 CMD [ "npm", "test" ]
 
 
+# Build stage build the dist folder store inside the docker image registry.
 #stage 4: builder
 FROM base AS builder
 ENV NODE_OPTIONS="--max-old-space-size=1024"

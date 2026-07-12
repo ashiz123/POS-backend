@@ -37,6 +37,7 @@ export class OrderController implements IOrderController {
       }
 
       const parsedValidatedData = OrderCreateValidation.parse(req.body);
+      console.log(parsedValidatedData);
 
       const paymentToVerify = await this.orderService.createOrder(
         userId,

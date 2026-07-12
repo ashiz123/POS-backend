@@ -80,7 +80,6 @@ export class ProductRepository
   }
 
   async getProductByBusinessId(businessId: string): Promise<IProduct[]> {
-
     return this.model
       .find({ businessId: businessId })
       .populate("categoryId")
@@ -99,50 +98,50 @@ export class ProductRepository
     try {
       const pipeline = [
         {
-          '$match': {
-            'businessId': new mongoose.Types.ObjectId(businessId)
-          }
-        }, {
-          '$lookup': {
-            'from': 'inventorybatches',
-            'localField': '_id',
-            'foreignField': 'productId',
-            'as': 'batches'
-          }
-        }, {
-          '$addFields': {
-            'totalStock': {
-              '$sum': '$batches.quantity'
-            }
-          }
-        }, {
-          '$match': {
-            '$expr': {
-              '$lte': [
-                '$totalStock', '$lowStock'
-              ]
-            }
-          }
-        }, {
-          '$project': {
-            'batches': 0
-          }
-        }
-      ]
+          $match: {
+            businessId: new mongoose.Types.ObjectId(businessId),
+          },
+        },
+        {
+          $lookup: {
+            from: "inventorybatches",
+            localField: "_id",
+            foreignField: "productId",
+            as: "batches",
+          },
+        },
+        {
+          $addFields: {
+            totalStock: {
+              $sum: "$batches.quantity",
+            },
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $lte: ["$totalStock", "$lowStock"],
+            },
+          },
+        },
+        {
+          $project: {
+            batches: 0,
+          },
+        },
+      ];
 
-      const result = await this.model.aggregate<IProduct[]>(pipeline).exec();
+      const result = await this.model.aggregate<IProduct>(pipeline).exec();
 
       if (!result || result.length == 0) {
-          throw new Error('No any product matched with low stock')
+        throw new Error("No any product matched with low stock");
       }
 
-      return result[0];
-    }
-    catch (error) {
+      return result;
+    } catch (error) {
       console.log(error);
       throw error;
     }
-
   }
 }
 

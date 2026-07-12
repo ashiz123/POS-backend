@@ -265,4 +265,31 @@ export class OrderRepository implements IOrderRepository {
       throw error;
     }
   }
+
+  async getTodaysTransactions(
+    businessId: string,
+    limit?: number,
+  ): Promise<OrderType[]> {
+    try {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      // 1. Start the query
+      let query = this.order.find({
+        businessId: new mongoose.Types.ObjectId(businessId),
+        createdAt: { $gte: today },
+      });
+
+      // If limit is provided, we sort by newest and apply the limit
+      if (limit && limit > 0) {
+        query = query.sort({ createdAt: -1 }).limit(limit);
+      }
+
+      // 3. Populate and execute
+      return await query.populate("terminalId", "name").exec();
+    } catch (error) {
+      console.error("Error retrieving today's transactions:", error);
+      throw error;
+    }
+  }
 }

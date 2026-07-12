@@ -11,7 +11,8 @@ import { IProductRepository } from "../products/product.type";
 export class DashboardService implements IDashboardService {
   constructor(
     @inject(TOKENS.ORDER_REPOSITORY) private orderRepository: IOrderRepository,
-    @inject(TOKENS.PRODUCT_REPOSITORY) private productRepository: IProductRepository
+    @inject(TOKENS.PRODUCT_REPOSITORY)
+    private productRepository: IProductRepository,
   ) {}
 
   async totalSalesToday(businessId: string): Promise<number> {
@@ -32,5 +33,9 @@ export class DashboardService implements IDashboardService {
 
   async lowStockProducts(businessId: string): Promise<IProduct[]> {
     return this.productRepository.getProductWithLowStock(businessId);
+  }
+
+  async todayOrders(businessId: string): Promise<OrderType[]> {
+    return this.orderRepository.getTodaysTransactions(businessId, 10);
   }
 }

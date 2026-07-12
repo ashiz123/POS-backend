@@ -17,4 +17,5 @@ export interface IDashboardService {
   bestSellingItem(businessId: string): Promise<MaximumSold>;
   voidOrder(businessId: string): Promise<OrderType[]>;
   lowStockProducts(businessId: string): Promise<IProduct[]>;
+  todayOrders(businessId: string): Promise<OrderType[]>;
 }
