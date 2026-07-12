@@ -3,7 +3,7 @@ import { IDashboardController, IDashboardService } from "./dashboard.types";
 import { inject, injectable } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
 import { UnauthorizedError } from "../../errors/httpErrors";
-import { OrderType } from "../order/order.model";
+
 
 @injectable()
 export class DashboardController implements IDashboardController {
