@@ -10,13 +10,14 @@ import {
 } from "./terminal.validation";
 import {
   BadRequestError,
+  ConflictError,
   NotFoundError,
   UnauthorizedError,
 } from "../../errors/httpErrors";
 import { ApiResponse } from "../../types/apiResponseType";
 import { TerminalDetail, TerminalDocument } from "./terminal.model";
 import { ITerminalSessionService } from "./terminalSession/terminalSession.type";
-import { setCookies } from "../../utils/cookieHelper";
+import { setCookies, unSetCookies } from "../../utils/cookieHelper";
 import { TerminalUserSessionResponse } from "./terminal.type";
 
 @injectable()
@@ -131,13 +132,18 @@ export class TerminalController implements ITerminalController {
     try {
       const { email, password } = req.body;
       const deviceAccessToken = req.cookies.deviceA_token;
-      // const deviceRefreshToken = req.cookies.deviceR_token;
+      const userSessionRefreshToken: string | null =
+        req.cookies.t_u_refresh_token;
 
-      if (!deviceAccessToken) {
-        throw new UnauthorizedError(
-          "Device access token not found or expired",
-          "DEVICE_EXPIRED",
-        );
+      console.log("cookies", req.cookies);
+
+      if (userSessionRefreshToken) {
+        res.status(409).json({
+          state: "session_active", //this is set for frontend
+          code: "ConflictError",
+          message: "Session is already active",
+        });
+        return;
       }
 
       const { sessionAccessToken, sessionRefreshToken, user } =
@@ -165,13 +171,22 @@ export class TerminalController implements ITerminalController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      if (!req.user) {
-        throw new NotFoundError("User not found to create the user");
+      console.log("terminal user", req.terminalUser);
+
+      if (!req.terminalUser) {
+        throw new NotFoundError("User not found to logout the user");
       }
-      const { terminalSessionId } = req.user;
+      const { terminalSessionId } = req.terminalUser;
       console.log("terminal session id", terminalSessionId);
 
-      await this.terminalSessionService.terminalLogout(terminalSessionId);
+      const logoutUser =
+        await this.terminalSessionService.terminalLogout(terminalSessionId);
+
+      if (logoutUser === true) {
+        console.log("removing cookies");
+        unSetCookies(res, "t_u_access_token");
+        unSetCookies(res, "t_u_refresh_token");
+      }
 
       const response: ApiResponse<boolean> = {
         success: true,

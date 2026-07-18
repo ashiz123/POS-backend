@@ -12,6 +12,7 @@
     "test:coverage": "npx vitest run --coverage",
     "test:clear": "rm -rf coverage || true",
     "lint": "eslint",
+    "deploy": "./deploy.sh",
     "dev": "tsx watch src/index.ts",
     "build": "swc src -d dist --copy-files",
     "type-check": "tsc --noEmit",

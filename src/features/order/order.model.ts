@@ -1,11 +1,12 @@
 import mongoose, { Document, Types } from "mongoose";
 import { OrderSchema } from "./order.schema";
 import { FinalResolvedItem } from "./orderItems/orderItem.model";
+import { OrderStatusType } from "./order.type";
 
 export interface OrderType {
   _id: string | Types.ObjectId;
   orderId: string;
-  status: "pending" | "processing" | "completed" | "cancelled";
+  status: OrderStatusType;
   items: FinalResolvedItem[];
   terminalSessionId?: string | Types.ObjectId;
   creatorId?: string | Types.ObjectId;

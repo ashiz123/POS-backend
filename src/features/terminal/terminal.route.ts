@@ -60,8 +60,13 @@ router.get(
   terminalController.getTerminalSessionUser,
 );
 
-router.post("/login", terminalController.loginTerminal);
+router.post("/login", requireDevice, terminalController.loginTerminal);
 
-router.post("/logout", authHandler, terminalController.logoutTerminal);
+router.post(
+  "/logout",
+  requireDevice,
+  kioskAuthHandler,
+  terminalController.logoutTerminal,
+);
 
 export default router;

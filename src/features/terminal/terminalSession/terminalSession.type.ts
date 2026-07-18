@@ -25,6 +25,9 @@ export interface ITerminalSessionService {
   ): Promise<TerminalContext>;
   terminalLogout(terminalSessionId: string): Promise<boolean>;
   generateSessionToken(refreshSessionToken: string): Promise<string>;
+  // inActiveTerminalByTerminalId(
+  //   terminalId: string,
+  // ): Promise<ITerminalSessionDocument | null>;
 }
 
 export interface ITerminalSessionRepository {
@@ -34,4 +37,7 @@ export interface ITerminalSessionRepository {
   closeTerminalSession(
     terminalSessionId: string,
   ): Promise<ITerminalSessionDocument | null>;
+  // setTerminalInactive(
+  //   terminalId: string,
+  // ): Promise<ITerminalSessionDocument | null>;
 }

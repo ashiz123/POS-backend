@@ -48,7 +48,7 @@ app.use("/api/inventoryBatch", inventoryBatchWithoutProductRoute);
 
 app.use("/api/order", orderRoute);
 app.use("/api/terminal", terminalRoute);
-app.use("/stripe", stripeTerminalRoute);
+app.use("/api/stripe", stripeTerminalRoute);
 app.use("/api/admin", notificationRoute);
 app.use("/api/kiosk", MenuRoutes);
 //fragemented routes

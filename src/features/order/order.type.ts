@@ -15,6 +15,15 @@ export type MaximumSold = {
   totalRevenue: number;
 };
 
+export const ORDER_STATUS = {
+  PENDING: "pending",
+  PROCESSING: "processing",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+} as const;
+
+export type OrderStatusType = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
+
 export interface IOrderController extends ICrudController {
   getOrderByBusiness: RouteHandler;
   completeOrder: RouteHandler;

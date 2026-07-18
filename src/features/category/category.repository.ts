@@ -26,12 +26,37 @@ export class CategoryRepository
     return this.model.find({ parentCategoryId: id });
   }
 
+  //Getting all the categories that atleast have one product
   async getActiveCategoriesOfBusiness(
     businessId: string,
   ): Promise<ICategoryDocument[]> {
-    return this.model
-      .find({ businessId, deletedAt: null, isActive: true })
-      .populate("parentCategoryId", "title");
+    return this.model.aggregate([
+      {
+        $match: {
+          businessId: new Types.ObjectId(businessId),
+          isActive: true,
+          deletedAt: null,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "categoryId",
+          as: "products",
+        },
+      },
+      {
+        $match: {
+          "products.0": { $exists: true },
+        },
+      },
+      // {
+      //   $project: {
+      //     products: 0, //dont display projects , only categories
+      //   },
+      // },
+    ]);
   }
 
   async getAllCategoriesOfBusiness(

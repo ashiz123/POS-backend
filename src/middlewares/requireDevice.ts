@@ -11,12 +11,6 @@ export const requireDevice = async (
   res: Response,
   next: NextFunction,
 ) => {
-  // const deviceRefreshToken = req.cookies.deviceR_token;
-
-  // if (!deviceRefreshToken) {
-  //   throw new ForbiddenError("Session is expired");
-  // }
-
   const deviceAccessToken = req.cookies.deviceA_token;
 
   if (!deviceAccessToken) {

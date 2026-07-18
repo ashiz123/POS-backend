@@ -1,12 +1,13 @@
 import { Schema } from "mongoose";
 import { OrderDocument } from "./order.model";
 import { OrderItemSchema } from "./orderItems/orderItem.schema";
+import { ORDER_STATUS } from "./order.type";
 
 export const OrderSchema = new Schema<OrderDocument>({
   orderId: String,
   status: {
     type: String,
-    enum: ["pending", "processing", "completed", "cancelled"],
+    enum: Object.values(ORDER_STATUS),
     default: "pending",
   },
   items: { type: [OrderItemSchema], required: true },

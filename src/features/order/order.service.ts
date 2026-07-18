@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { IOrderRepository, IOrderService } from "./order.type";
+import { IOrderRepository, IOrderService, ORDER_STATUS } from "./order.type";
 import { OrderDocument, OrderType } from "./order.model";
 import { TOKENS } from "../../config/tokens";
 import { ICounterRepository } from "../counter/counter.repository";
@@ -18,7 +18,7 @@ import {
   IStripePaymentService,
   StripePaymentData,
 } from "../stripe/stripePayment.type";
-import { PaymentType } from "../payment/payment.model";
+import { PaymentType, PayType } from "../payment/payment.model";
 import { PAYMENT_STATUS, PAYMENT_TYPE } from "../payment/payment.constants";
 import { stockQueue } from "../../queues/stockQueue";
 
@@ -184,18 +184,25 @@ export class OrderService implements IOrderService {
         session,
       );
 
-      let paidBy;
+      // let paidBy: any;
 
-      if (paymentData.paymentType === "card_present") {
-        paidBy = PAYMENT_TYPE.CARD;
-      }
+      // if (paymentData.paymentType === "card_present") {
+      //   paidBy = PAYMENT_TYPE.CARD;
+      // }
+
+      const STRIPE_TO_PAY_TYPE_MAP: Record<string, PayType> = {
+        card_present: PAYMENT_TYPE.CARD,
+        card_not_present: PAYMENT_TYPE.CARD,
+        cash: PAYMENT_TYPE.CASH,
+        // Add other Stripe payment types here
+      };
 
       if (!updateOrder) throw new Error("Order not found");
 
       const paymentDataMap: PaymentType = {
         orderId: data.orderId,
         stripePaymentId: data.stripePaymentId,
-        type: paidBy,
+        type: STRIPE_TO_PAY_TYPE_MAP[paymentData.paymentType],
         status: PAYMENT_STATUS.COMPLETED,
         amount: paymentData.amount,
         currency: paymentData.currency,
@@ -251,7 +258,7 @@ export class OrderService implements IOrderService {
 
       if (!order) throw new NotFoundError("Order not found");
 
-      if (order.status !== "pending") {
+      if (order.status !== ORDER_STATUS.PENDING) {
         throw new Error(
           `Cannot cancel order. Current status is ${order.status}`,
         );
