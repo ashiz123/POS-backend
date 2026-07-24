@@ -9,11 +9,10 @@ import {
   IUserDocument,
   IAuthRepository,
   IAuthService,
-  Payload,
   IUserProps,
   JwtPayload,
 } from "./interfaces/authInterface.js";
-import { SignInType, VerifyType } from "../../utils/jwtService.js";
+import { SignInType, VerifyType } from "../../jwt/jwtService.js";
 
 import {
   IUserBusinessDocument,
@@ -29,12 +28,12 @@ import { IAuthCode, IAuthCodeRepository } from "../authCode/authCode.type.js";
 import {
   LoginResponse,
   LoginWithSelectBusinessDTO,
-  PreAuthPayload,
   SelectBusinessResponse,
 } from "./auth.type.js";
 import { ACCOUNT_TYPE, AUTH_TYPE, sevenHourInSecond } from "./user.constant.js";
 import { baseUrl } from "../../utils/baseUrl.js";
 import { IBusinessRepository } from "../business/business.type.js";
+import { AuthBusinessPayload, AuthUserPayload } from "../../jwt/jwtPayload.js";
 
 @singleton()
 export class AuthService implements IAuthService {
@@ -93,7 +92,7 @@ export class AuthService implements IAuthService {
 
     const newUser = await this.authRepository.createUser(newUserWithToken);
 
-    const verificationLink = `${baseUrl}/api/auth/verifyUser/${token}`;
+    const verificationLink = `${baseUrl}/api/auth/verify-user/${token}`;
     if (newUser) {
       const emailData = {
         email: newUser.email,
@@ -149,17 +148,25 @@ export class AuthService implements IAuthService {
         subject: "Access Code",
         message: `Enter this access ${accessCode} code  to authorize fully`,
       };
+
       console.log(emailData);
-      this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
+
+      if (process.env.NODE_ENV === "production") {
+        try {
+          this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
+        } catch (err) {
+          console.log(err);
+        }
+      }
     }
 
-    const payload: PreAuthPayload = {
+    const payload = {
       sub: user.id,
       email: user.email,
       type: AUTH_TYPE.PREAUTH,
       accountType: user.accountType,
       isVerified: user.is_verified,
-    };
+    } as unknown as AuthUserPayload;
 
     //it return preAuth Token
     return await this.jwtSignIn(payload, this.accessSecret, "5m");
@@ -189,7 +196,7 @@ export class AuthService implements IAuthService {
       accountType: accountType,
       type: AUTH_TYPE.APP_ACCESS,
       isVerified: true,
-    } as unknown as PreAuthPayload;
+    } as unknown as AuthUserPayload;
 
     const accessToken = await this.jwtSignIn(authData, this.accessSecret, "1m");
     const refreshToken = await this.jwtSignIn(
@@ -230,14 +237,11 @@ export class AuthService implements IAuthService {
       );
     }
 
-    const payload: Payload = {
-      sub: data.userId,
-      email: data.email,
+    const payload = {
       role: userBusiness.role,
       status: userBusiness.userStatus,
       businessId: data.businessId,
-      type: "access",
-    };
+    } as unknown as AuthBusinessPayload;
 
     const businessToken = await this.jwtSignIn(
       payload,

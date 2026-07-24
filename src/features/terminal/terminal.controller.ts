@@ -39,7 +39,12 @@ export class TerminalController implements ITerminalController {
         throw new UnauthorizedError("Authenticated user not found");
       }
 
-      const { businessId, userId } = req.user;
+      if (!req.business) {
+        throw new UnauthorizedError("Authenticated business not found");
+      }
+
+      const { userId } = req.user;
+      const { businessId } = req.business;
       const ownerId = userId;
       const parsedValidatedData: CreateTerminalDTO =
         CreateTerminalValidation.parse(req.body);
@@ -135,8 +140,6 @@ export class TerminalController implements ITerminalController {
       const userSessionRefreshToken: string | null =
         req.cookies.t_u_refresh_token;
 
-      console.log("cookies", req.cookies);
-
       if (userSessionRefreshToken) {
         res.status(409).json({
           state: "session_active", //this is set for frontend
@@ -206,12 +209,12 @@ export class TerminalController implements ITerminalController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new Error("Authenticated user not found");
       }
-      console.log("uer", req.user);
-      const { businessId } = req.user;
-      console.log("businessId", businessId);
+
+      const { businessId } = req.business;
+
       const activeTerminals =
         await this.terminalService.findByBusinessId(businessId);
       const response: ApiResponse<TerminalDocument[]> = {

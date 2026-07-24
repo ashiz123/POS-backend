@@ -4,7 +4,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../errors/httpErrors";
-import { verifyToken } from "../utils/jwtService";
+import { verifyToken } from "../jwt/jwtService";
 
 export const requireDevice = async (
   req: Request,

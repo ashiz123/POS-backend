@@ -1,4 +1,5 @@
 import { IUserDocument, Payload } from "./interfaces/authInterface";
+import { AuthUserPayload } from "../../jwt/jwtPayload";
 import { ACCOUNT_TYPE, AUTH_TYPE, USER_ROLE } from "./user.constant";
 
 export type AccountType = (typeof ACCOUNT_TYPE)[keyof typeof ACCOUNT_TYPE];
@@ -15,19 +16,10 @@ export type PreAuthResponse = {
   isVerified: boolean;
 };
 
-export type PreAuthPayload = {
-  sub: string;
-  email: string;
-  name?: string;
-  type: AuthType;
-  accountType: AccountType;
-  isVerified: boolean;
-};
-
 export type LoginResponse = {
   accessToken: string;
   refreshToken: string;
-  authData: PreAuthPayload;
+  authData: AuthUserPayload;
 };
 
 export type SelectBusinessResponse = {

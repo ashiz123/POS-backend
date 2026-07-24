@@ -15,7 +15,7 @@ import { logger } from "./logHandler";
 export const hasPermission = (permissionName: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const accountType = req.user?.accountType;
-    const userRole = req.user?.role;
+    const userRole = req.business?.role;
 
     if (accountType === ACCOUNT_TYPE.ADMIN) {
       return next();

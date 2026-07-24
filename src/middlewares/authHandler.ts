@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwtService.js";
-import { AUTH_TYPE } from "../features/auth/user.constant.js";
-import { terminalSession } from "../utils/terminalSession.js";
+import { verifyToken } from "../jwt/jwtService.js";
+// import { AUTH_TYPE } from "../features/auth/user.constant.js";
+// import { terminalSession } from "../utils/terminalSession.js";
 
 type TerminalSessionType = {
   businessId: string;
@@ -16,7 +16,7 @@ export const authHandler = async (
 ): Promise<void> => {
   //validation
 
-  const token = req.cookies.accessToken;
+  const token = req.cookies.accessToken; //user detail token
 
   const accessSecret = new TextEncoder().encode(process.env.ACCESS_SECRET);
 
@@ -43,20 +43,22 @@ export const authHandler = async (
     };
 
     //if its AUTH_TYPE is TERMINAL_ACCESS than, added some element on that UserContext object.
-    if (payload.type === AUTH_TYPE.TERMINAL_ACCESS) {
-      const { businessId, terminalId, terminalSessionId } = terminalSession(
-        res,
-        payload,
-      ) as unknown as TerminalSessionType;
-      // this is recently updated. Check this working
-      userContext.businessId = businessId;
-      userContext.terminalId = terminalId;
-      userContext.terminalSessionId = terminalSessionId;
-    }
+    // if (payload.type === AUTH_TYPE.TERMINAL_ACCESS) {
+    //   console.log("terminal access");
+    //   const { businessId, terminalId, terminalSessionId } = terminalSession(
+    //     res,
+    //     payload,
+    //   ) as unknown as TerminalSessionType;
+    //   // this is recently updated. Check this working
+    //   userContext.businessId = businessId;
+    //   userContext.terminalId = terminalId;
+    //   userContext.terminalSessionId = terminalSessionId;
+    // }
 
     req.user = userContext;
     next();
   } catch (err) {
+    console.log(err);
     res.status(401).json({ message: "Invalid or expired token" });
     return;
   }

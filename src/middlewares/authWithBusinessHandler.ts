@@ -1,20 +1,25 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwtService";
+import { verifyToken } from "../jwt/jwtService";
 import { logger } from "./logHandler";
+import { AuthBusinessPayload } from "../jwt/jwtPayload";
 
 export const authWithBusinessHandler = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const token = req.cookies.businessToken;
-  console.log("business token", token);
+  const token = req.cookies.businessToken; //Business token
+
+  if (!req.user) {
+    res.status(401).json({ message: "Unauthorized: Missing user context" });
+    return;
+  }
 
   const accessSecret = new TextEncoder().encode(process.env.ACCESS_SECRET);
   if (!token) throw new Error("No token provided");
 
   try {
-    const payload = await verifyToken(token, accessSecret);
+    const payload = await verifyToken<AuthBusinessPayload>(token, accessSecret);
 
     if (!payload) {
       res.status(401).json({ message: "Unauthorized" });
@@ -26,11 +31,7 @@ export const authWithBusinessHandler = async (
       return;
     }
 
-    req.user = {
-      userId: payload.sub,
-      email: payload.email,
-      type: payload.type,
-      accountType: payload.accountType,
+    req.business = {
       status: payload.status,
       businessId: payload.businessId,
       role: payload.role,

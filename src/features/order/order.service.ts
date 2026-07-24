@@ -189,11 +189,13 @@ export class OrderService implements IOrderService {
       // if (paymentData.paymentType === "card_present") {
       //   paidBy = PAYMENT_TYPE.CARD;
       // }
+      //
+      console.log("payment", paymentData.paymentType);
 
       const STRIPE_TO_PAY_TYPE_MAP: Record<string, PayType> = {
         card_present: PAYMENT_TYPE.CARD,
-        card_not_present: PAYMENT_TYPE.CARD,
         cash: PAYMENT_TYPE.CASH,
+
         // Add other Stripe payment types here
       };
 
@@ -202,6 +204,7 @@ export class OrderService implements IOrderService {
       const paymentDataMap: PaymentType = {
         orderId: data.orderId,
         stripePaymentId: data.stripePaymentId,
+        businessId: order.businessId,
         type: STRIPE_TO_PAY_TYPE_MAP[paymentData.paymentType],
         status: PAYMENT_STATUS.COMPLETED,
         amount: paymentData.amount,

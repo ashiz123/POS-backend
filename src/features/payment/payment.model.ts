@@ -12,6 +12,7 @@ export interface PaymentType {
   stripePaymentId: string;
   type: PayType;
   status: PaymentStatus;
+  businessId: string | Types.ObjectId | undefined;
   metaData?: Record<string, string>;
   amount: number;
   currency: string;

@@ -30,15 +30,11 @@ export class UserController implements IUserController {
       // Validation
       const validatedUser: UserRequest = CreateUserValidation.parse(req.body);
 
-      if (!req.user) {
-        throw new UnauthorizedError("User not found");
+      if (!req.business) {
+        throw new UnauthorizedError("Authenticated business not found");
       }
 
-      if (!req.user.businessId) {
-        throw new UnauthorizedError("Business not found");
-      }
-
-      const { businessId } = req.user;
+      const { businessId } = req.business;
 
       const requestUserData = {
         ...validatedUser,
@@ -168,11 +164,11 @@ export class UserController implements IUserController {
 
   listByBusiness = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
-        throw new UnauthorizedError("User not found");
+      if (!req.business) {
+        throw new UnauthorizedError("Authenticated business not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
 
       if (!businessId) {
         throw new NotFoundError("Business not found");

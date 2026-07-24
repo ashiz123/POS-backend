@@ -16,6 +16,7 @@ const MANAGER_PERMISSIONS = [
 
 const OWNER_PERMISSIONS = [
   ...MANAGER_PERMISSIONS,
+  "handle_payment",
   "manage_users",
   "manage_business",
   "create_business",

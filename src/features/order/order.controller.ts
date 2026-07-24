@@ -62,8 +62,6 @@ export class OrderController implements IOrderController {
 
   completeOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("req.user", req.user);
-
       const parsedValidatedPayment = PaymentValidationSchema.parse(req.body);
 
       const order = await this.orderService.completeOrder(
@@ -95,11 +93,11 @@ export class OrderController implements IOrderController {
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
-    if (!req.user) {
+    if (!req.business) {
       throw new UnauthorizedError("User not authorized");
     }
 
-    const { businessId } = req.user;
+    const { businessId } = req.business;
     console.log("businessId", businessId);
 
     try {

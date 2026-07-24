@@ -19,7 +19,7 @@ import {
   Payload,
 } from "../../auth/interfaces/authInterface";
 import { TOKENS } from "../../../config/tokens";
-import { SignInType, VerifyType } from "../../../utils/jwtService";
+
 import { ISessionService } from "../../session/session.type";
 import { ITerminalRepository } from "../terminal.interface";
 import { TerminalLoginType } from "../terminal.model";
@@ -30,6 +30,8 @@ import {
   UnauthorizedError,
 } from "../../../errors/httpErrors";
 import { ComparePasswordFn } from "../../../utils/password";
+import { KioskTerminalDevicePayload } from "../../../jwt/jwtPayload";
+import { SignInType, VerifyType } from "../../../jwt/jwtService";
 
 @injectable()
 export class TerminalSessionService implements ITerminalSessionService {
@@ -109,10 +111,10 @@ export class TerminalSessionService implements ITerminalSessionService {
       await this.terminalSessionRepository.createTerminalSession(data);
 
     const payload: Payload = {
-      type: AUTH_TYPE.TERMINAL_ACCESS,
       sub: context.userId.toString(),
       email: context.email,
       name: context.name,
+      type: AUTH_TYPE.TERMINAL_ACCESS,
       terminalSessionId: terminalSession.id,
       role: context.role,
       businessId: businessId.toString(),

@@ -13,11 +13,11 @@ export class DashboardController implements IDashboardController {
 
   totalNetSales = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authorised user not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
       if (!businessId) {
         throw new UnauthorizedError("Unauthorized business");
       }
@@ -33,11 +33,11 @@ export class DashboardController implements IDashboardController {
 
   bestSellingItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authorised user not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
       if (!businessId) {
         throw new UnauthorizedError("Unauthorized business");
       }
@@ -59,10 +59,11 @@ export class DashboardController implements IDashboardController {
 
   voidOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const businessId = req.user?.businessId;
-      if (!businessId) {
+      if (!req.business) {
         throw new UnauthorizedError("Unauthorized business");
       }
+
+      const { businessId } = req.business;
 
       const voidOrdered = await this.dashboardService.voidOrder(businessId);
       if (voidOrdered.length === 0) {
@@ -87,10 +88,11 @@ export class DashboardController implements IDashboardController {
     next: NextFunction,
   ) => {
     try {
-      const businessId = req.user?.businessId;
-      if (!businessId) {
+      if (!req.business) {
         throw new UnauthorizedError("Unauthorized business");
       }
+
+      const { businessId } = req.business;
 
       const products = await this.dashboardService.lowStockProducts(businessId);
       res.status(200).json(products);
@@ -107,10 +109,11 @@ export class DashboardController implements IDashboardController {
     next: NextFunction,
   ) => {
     try {
-      const businessId = req.user?.businessId;
-      if (!businessId) {
+      if (!req.business) {
         throw new UnauthorizedError("Unauthorized business");
       }
+
+      const { businessId } = req.business;
 
       const todayOrders = await this.dashboardService.todayOrders(businessId);
       res.status(200).json(todayOrders);

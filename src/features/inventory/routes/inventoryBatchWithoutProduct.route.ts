@@ -4,6 +4,7 @@ import { hasPermission } from "../../../middlewares/hasPermission";
 import { createCrudRoutes } from "../../../shared/baseRouter";
 import { IInventoryBatchController } from "../inventoryBatch.type";
 import { TOKENS } from "../../../config/tokens";
+import { authHandler } from "../../../middlewares/authHandler";
 
 export const inventoryBatchController =
   container.resolve<IInventoryBatchController>(
@@ -12,5 +13,9 @@ export const inventoryBatchController =
 
 export default createCrudRoutes(inventoryBatchController, {
   exclude: ["create", "all"],
-  middleware: [authWithBusinessHandler, hasPermission("handle_product")],
+  middleware: [
+    authHandler,
+    authWithBusinessHandler,
+    hasPermission("handle_product"),
+  ],
 });

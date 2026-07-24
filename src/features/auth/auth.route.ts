@@ -37,7 +37,7 @@ router.post("/register", (req, res, next) => {
 });
 
 //this goes to user email, to verify email is valid and of right user
-router.get("/verifyUser/:token", (req, res, next) => {
+router.get("/verify-user/:token", (req, res, next) => {
   return verifyRegisterUser(
     container.resolve<IAuthService>(TOKENS.AUTH_SERVICE),
   )(req, res, next);
@@ -50,7 +50,7 @@ router.post("/login", (req, res, next) => {
 });
 
 //verify OTP
-router.post("/verifyOTP", (req, res, next) => {
+router.post("/verify-otp", (req, res, next) => {
   const authService = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);
   return verifyUserWithOTP(authService)(req, res, next);
 });
@@ -61,7 +61,7 @@ router.post("/refreshSession", (req, res, next) => {
   return refreshSession(authService)(req, res, next);
 });
 
-router.get("/authUser", authHandler, getAuthUser());
+router.get("/auth-user", authHandler, getAuthUser());
 
 router.post("/logout", authHandler, (req, res, next) => {
   const authService = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);

@@ -5,6 +5,7 @@ import { TOKENS } from "../../config/tokens";
 import { IUserController } from "./user.type";
 import { authWithBusinessHandler } from "../../middlewares/authWithBusinessHandler";
 import { Request, Response, NextFunction } from "express";
+import { authHandler } from "../../middlewares/authHandler";
 
 // authHandler, hasPermission('manage_users')
 
@@ -15,7 +16,11 @@ export default (req: Request, res: Response, next: NextFunction) => {
 
   const router = createCrudRoutes(userController, {
     exclude: [],
-    middleware: [authWithBusinessHandler, hasPermission("manage_users")],
+    middleware: [
+      authHandler,
+      authWithBusinessHandler,
+      hasPermission("manage_users"),
+    ],
     additionalRoute: [
       {
         name: "getUserOfBusiness",

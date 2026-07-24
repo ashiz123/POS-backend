@@ -16,6 +16,7 @@ import { webhookHandler } from "../features/stripe/stripeTerminal.controller.js"
 import businessRoutes from "../features/business/routes/business.routes.js";
 import MenuRoutes from "../features/kiosk/kiosk.route.js";
 import DashboardRoutes from "../features/dashboard/dashboard.route.js";
+import PaymentRoutes from "../features/payment/payment.route.js";
 import inventoryBatchWithProductRoute from "../features/inventory/routes/inventoryBatchWithProduct.route.js";
 import inventoryBatchWithoutProductRoute from "../features/inventory/routes/inventoryBatchWithoutProduct.route.js";
 
@@ -53,6 +54,7 @@ app.use("/api/admin", notificationRoute);
 app.use("/api/kiosk", MenuRoutes);
 //fragemented routes
 app.use("/api/dashboard", DashboardRoutes);
+app.use("/api/payment", PaymentRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });

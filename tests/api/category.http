@@ -1,0 +1,24 @@
+@baseUrl = http://localhost:3000/api
+@header = Content-Type: application/json
+
+
+### 1. Create category
+### 1. Create category
+POST {{baseUrl}}/categories/create
+{{header}}
+Cookie: accessToken={{accessToken}}; refreshToken={{refreshToken}}
+
+{
+    "title": "Garden",
+    "description": "this is testing",
+    "slug":"garden",
+    "isActive": true,
+    "position":"20",
+    "parentCategoryId": "614e64474c6ed958963cad63"
+}
+
+
+### 2. Get category by business
+### 3. Update category
+### 4. Delete category
+### 5. Get all categories

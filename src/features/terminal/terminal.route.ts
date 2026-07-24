@@ -18,6 +18,7 @@ const router = express.Router();
 // Request for terminal
 router.post(
   "/create",
+  authHandler,
   authWithBusinessHandler,
   hasPermission("create_terminal"),
   terminalController.createTerminal,
@@ -25,6 +26,7 @@ router.post(
 
 router.get(
   "/all-terminals",
+  authHandler,
   authWithBusinessHandler,
   hasPermission("create_terminal"),
   terminalController.allActiveTerminals,

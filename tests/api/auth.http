@@ -1,0 +1,73 @@
+
+
+### 1. Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+
+{
+    "email": "hamalashiz@gmail.com",
+    "name": "Ashiz Hamal",
+    "phone" : "23333322222",
+    "password" : "ashiz123"
+}
+
+
+### 2. Verify registered User 
+//User must verify through email. Than verified user can login.
+
+
+### 3. Login
+# @name login
+POST {{ baseUrl}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "ashizthakuri@gmail.com",
+    "password": "ashiz123"
+}
+
+
+### 4. Verify OTP
+# @name verifyOtp
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+Accept: application/json
+
+{
+    "otp" : "704566"
+}
+
+###
+
+
+# < {%
+#     // Get the raw Set-Cookie header string
+#     const setCookieHeader = response.headers.valueOf('set-cookie');
+    
+#     if (setCookieHeader) {
+#         // Regex to extract the token values
+#         const accessToken = setCookieHeader.match(/accessToken=([^;]+)/);
+#         const refreshToken = setCookieHeader.match(/refreshToken=([^;]+)/);
+        
+#         if (accessToken) request.variables.set('accessToken', accessToken[1]);
+#         if (refreshToken) request.variables.set('refreshToken', refreshToken[1]);
+#     }
+# %}
+
+
+
+
+
+### 5. Refresh authenticated user session
+#@name RefreshAuthSession
+POST {{baseUrl}}/auth/refreshSession
+Content-Type: application/json
+
+
+
+
+
+
+

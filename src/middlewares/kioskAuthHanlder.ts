@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { NotFoundError, UnauthorizedError } from "../errors/httpErrors";
-import { verifyToken } from "../utils/jwtService";
+import { verifyToken } from "../jwt/jwtService";
 
 export const kioskAuthHandler = async (
   req: Request,
@@ -9,6 +9,8 @@ export const kioskAuthHandler = async (
 ) => {
   try {
     const terminalUserAccessToken = req.cookies.t_u_access_token;
+
+    console.log("request user", req.user);
 
     // 1. If no access token, immediately return 401 so the frontend knows to refresh
     if (!terminalUserAccessToken) {

@@ -43,11 +43,11 @@ export class CategoryController implements ICategoryController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authenticated user not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
 
       if (!businessId) {
         throw new NotFoundError("Business Id not found to create the category");
@@ -75,11 +75,11 @@ export class CategoryController implements ICategoryController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authenticated user not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
 
       if (!businessId) {
         throw new NotFoundError("Business Id not found to create the category");
@@ -128,11 +128,11 @@ export class CategoryController implements ICategoryController {
     next: NextFunction,
   ) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("User is not authorized");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
       const showAll: boolean = req.query.all === "true";
 
       if (!businessId) {

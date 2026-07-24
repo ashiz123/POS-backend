@@ -73,11 +73,11 @@ export class BusinessController implements IBusinessController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authorized user not found");
       }
 
-      const { businessId, role } = req.user;
+      const { businessId, role } = req.business;
 
       if (!businessId) {
         throw new NotFoundError("Business id not found");

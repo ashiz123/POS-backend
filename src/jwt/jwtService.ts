@@ -26,10 +26,10 @@ export type SignInType = (
   ttl?: string,
 ) => Promise<string>;
 
-export type VerifyType = (
+export type VerifyType<T = JwtPayload> = (
   token: string,
   secret: Uint8Array,
-) => Promise<JwtPayload>;
+) => Promise<T>;
 
 export type TerminalSignInType = (
   data: Payload | PreAuthType,
@@ -52,11 +52,26 @@ export const signIn: SignInType = async (
     .sign(secret);
 };
 
-export const verifyToken: VerifyType = async (
+// export const verifyToken: VerifyType = async (
+//   token: string,
+//   secret: Uint8Array,
+// ): Promise<JwtPayload> => {
+//   const { payload } = await jwtVerify<JwtPayload>(token, secret, {
+//     algorithms: ["HS256"],
+//     issuer: ISSUER,
+//     audience: AUDIENCE,
+//     clockTolerance: 5,
+//   });
+
+//   return payload;
+// };
+
+export const verifyToken = async <T = JwtPayload>(
   token: string,
   secret: Uint8Array,
-): Promise<JwtPayload> => {
-  const { payload } = await jwtVerify<JwtPayload>(token, secret, {
+): Promise<T> => {
+  // 2. Pass T into jwtVerify
+  const { payload } = await jwtVerify<T>(token, secret, {
     algorithms: ["HS256"],
     issuer: ISSUER,
     audience: AUDIENCE,

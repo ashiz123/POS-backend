@@ -9,6 +9,11 @@ export const PaymentSchema = new Schema<IPaymentDocument>(
       ref: "Order",
       required: true,
     },
+    businessId: {
+      type: Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     stripePaymentId: {
       type: String,
       required: true,

@@ -4,7 +4,7 @@ import { OrderItemSchema } from "./orderItems/orderItem.schema";
 import { ORDER_STATUS } from "./order.type";
 
 export const OrderSchema = new Schema<OrderDocument>({
-  orderId: String,
+  orderId: { type: String, required: true },
   status: {
     type: String,
     enum: Object.values(ORDER_STATUS),

@@ -51,11 +51,11 @@ export class CategoryRepository
           "products.0": { $exists: true },
         },
       },
-      // {
-      //   $project: {
-      //     products: 0, //dont display projects , only categories
-      //   },
-      // },
+      {
+        $project: {
+          products: 0, //dont display projects , only categories
+        },
+      },
     ]);
   }
 

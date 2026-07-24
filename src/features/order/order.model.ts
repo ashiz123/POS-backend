@@ -9,9 +9,9 @@ export interface OrderType {
   status: OrderStatusType;
   items: FinalResolvedItem[];
   terminalSessionId?: string | Types.ObjectId;
-  creatorId?: string | Types.ObjectId;
-  terminalId?: string | Types.ObjectId;
-  businessId?: string | Types.ObjectId;
+  creatorId: string | Types.ObjectId;
+  terminalId: string | Types.ObjectId;
+  businessId: string | Types.ObjectId;
   total: number;
   paidAmount?: number;
 }

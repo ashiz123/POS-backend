@@ -27,11 +27,11 @@ export class ProductController implements IProductController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Authorised user not found");
       }
 
-      const { businessId } = req.user;
+      const { businessId } = req.business;
       if (!businessId) {
         throw new UnauthorizedError("Unauthorized business");
       }
@@ -74,11 +74,11 @@ export class ProductController implements IProductController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      if (!req.user) {
+      if (!req.business) {
         throw new UnauthorizedError("Logged in user not found");
       }
       const data: ProductRequest = CreateProductSchema.parse(req.body);
-      const { businessId } = req.user;
+      const { businessId } = req.business;
 
       if (!businessId) {
         throw new NotFoundError("Business not found to create product");

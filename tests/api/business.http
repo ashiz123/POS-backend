@@ -1,0 +1,40 @@
+### Login with business
+# @name BusinessLogin
+POST {{baseUrl}}/auth/loginWithBusiness
+Content-Type: application/json
+
+{
+    "businessId" : "6a01dd7e3afd26d58b127f53"
+}
+
+
+### Create new business
+# @name BusinessCreate
+
+POST {{baseUrl}}/business/create
+{{headers}}
+
+{
+    "name": "ashiz thakuri new cookies business ",
+    "address": "456 Commerce St, New York, NY 10001",
+    "businessType" : "groccery"
+ 
+}
+
+
+### 2. Update Business
+# This references the 'id' field from the 'createBusiness' response
+@businessId = {{BusinessCreate.response.body.data._id}}
+
+
+PUT {{baseUrl}}/business/update/{{businessId}}
+{{headers}}
+
+{
+    "name": "ashiz  business 2026 ",
+    "address": "137 shorncliff road"
+
+ 
+}
+
+

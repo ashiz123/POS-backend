@@ -22,7 +22,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../errors/httpErrors";
-import { SignInType, VerifyType } from "../../utils/jwtService";
+import { SignInType, VerifyType } from "../../jwt/jwtService";
 import { ITerminalRepository, ITerminalService } from "./terminal.interface";
 import { JwtPayload, Payload } from "../auth/interfaces/authInterface";
 import { ISessionService } from "../session/session.type";

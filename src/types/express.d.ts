@@ -7,6 +7,11 @@ declare module "express" {
       email: string;
       [key: string]: any;
     };
+    business?: {
+      status: string;
+      businessId: string;
+      role: string;
+    };
     terminal?: {
       businessId: string;
       terminalId: string;
