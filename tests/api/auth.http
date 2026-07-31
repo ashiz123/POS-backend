@@ -1,7 +1,7 @@
 
 
 ### 1. Register
-POST {{baseUrl}}/auth/register
+POST {{ baseUrl }}/auth/register
 Content-Type: application/json
 
 
@@ -31,7 +31,7 @@ Accept: application/json
 
 ### 4. Verify OTP
 # @name verifyOtp
-POST {{baseUrl}}/auth/verify-otp
+POST {{ baseUrl }}/auth/verify-otp
 Content-Type: application/json
 Accept: application/json
 
@@ -39,7 +39,17 @@ Accept: application/json
     "otp" : "704566"
 }
 
-###
+### 5. Forget password 
+# @name forgetPassword
+POST {{ baseUrl }}/auth/forget-password
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email" : "ashizhamal@gmail.com"
+}
+
+
 
 
 # < {%
@@ -62,8 +72,8 @@ Accept: application/json
 
 ### 5. Refresh authenticated user session
 #@name RefreshAuthSession
-POST {{baseUrl}}/auth/refreshSession
-Content-Type: application/json
+# POST {{baseUrl}}/auth/refreshSession
+# Content-Type: application/json
 
 
 

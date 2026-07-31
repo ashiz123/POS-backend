@@ -149,7 +149,6 @@ export class UserRepository
 
     const result = await this.model.aggregate(pipeline).exec();
 
-    console.log(result);
     if (!result || result.length === 0) {
       throw new Error(
         "Authentication failed: Invalid credentials, or user/terminal mapping is incorrect.",

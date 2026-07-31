@@ -2,8 +2,15 @@ import { IUserDocument, IUserProps } from "./interfaces/authInterface.js";
 import { IAuthRepository } from "./interfaces/authInterface.js";
 import User from "./auth.model.js";
 import { isMongoDuplicateKeyError } from "../../errors/guard.js";
-import { BadRequestError, DuplicateEntry } from "../../errors/httpErrors.js";
+import {
+  BadRequestError,
+  ConflictError,
+  DuplicateEntry,
+  NotFoundError,
+} from "../../errors/httpErrors.js";
 import { injectable } from "tsyringe";
+import { NotBeforeError } from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 @injectable()
 export class AuthRepository implements IAuthRepository {
@@ -46,5 +53,45 @@ export class AuthRepository implements IAuthRepository {
     }
 
     return user;
+  }
+
+  async storeResetToken(email: string, hashedToken: string): Promise<string> {
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); //15 mins
+
+    const user = await User.findOneAndUpdate(
+      {
+        email: email,
+      },
+      {
+        $set: {
+          resetPasswordToken: hashedToken,
+          resetPasswordExpires: expiresAt,
+        },
+      },
+      { new: true },
+    );
+
+    if (!user) throw new NotFoundError("USER_NOT_FOUND");
+    return hashedToken;
+  }
+
+  async updatePasswordWithToken(
+    hashedToken: string,
+    newPassword: string,
+  ): Promise<boolean> {
+    console.log("hashed token", hashedToken);
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) throw new ConflictError("USER_NOT_FOUND");
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return true;
   }
 }

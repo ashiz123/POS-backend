@@ -38,7 +38,6 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
       required: false,
     },
 
-    //admin using verification token
     verificationToken: {
       type: String,
       required: false,
@@ -50,13 +49,22 @@ export const UserSchema: Schema<IUserDocument> = new Schema(
       required: false,
     },
 
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
+
     new: {
       type: Boolean,
       default: true,
       required: true,
     },
 
-    //this must be isVerified
     is_verified: {
       type: Boolean,
       default: false,

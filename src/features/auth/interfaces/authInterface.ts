@@ -21,6 +21,8 @@ export interface IUserProps {
   is_verified: boolean;
   verificationToken?: string;
   verificationExpires?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdBy?: string | Types.ObjectId;
 }
 
@@ -50,12 +52,19 @@ export interface IAuthService {
     otp: string,
   ): Promise<LoginResponse>;
   generateNewAccessToken(refreshToken: string): Promise<string>;
+  forgetPassword(email: string): Promise<string>;
+  resetPassword(token: string, newPassword: string): Promise<boolean>;
 }
 
 export interface IAuthRepository {
   createUser(data: IUserProps): Promise<IUserDocument>;
   verifyUser(token: string): Promise<IUserDocument>;
   findByEmail(email: string): Promise<IUserDocument | null>;
+  storeResetToken(email: string, hashedToken: string): Promise<string>;
+  updatePasswordWithToken(
+    hashedToken: string,
+    newPassword: string,
+  ): Promise<boolean>;
 }
 
 export type Payload = {

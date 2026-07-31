@@ -6,8 +6,15 @@ import {
   LoginWithBusinessValidation,
 } from "./validations/LoginSchemaValidation.js";
 import { setCookies, unSetCookies } from "../../utils/cookieHelper.js";
-import { ConflictError, UnauthorizedError } from "../../errors/httpErrors.js";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../errors/httpErrors.js";
 import { ACCOUNT_TYPE } from "./user.constant.js";
+import { ForgetPasswordValidation } from "./validations/FogetPasswordValidation.js";
+import { formForgetPassword } from "../../utils/setPasswordForm.js";
+import { ResetPasswordValidation } from "./validations/ResetPasswordValidation.js";
 
 //business register
 export const registerUser =
@@ -176,15 +183,6 @@ export const loginUserWithBusinessId =
 export const logoutUser =
   (authService: IAuthService) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    // const token = req.headers.authorization?.split(" ")[1] || "";c
-    // const result = await authService.logout(token);
-    // if (!result) {
-    //   logger.error("Logout user failed");
-    //   return next(new Error("Logout failed"));
-    // }
-
-    // res.status(200).json({ message: "User logged out successfully" });
-
     const isProduction: boolean = process.env.NODE_ENV === "production";
 
     const cookieOptions = {
@@ -212,6 +210,66 @@ export const logoutUser =
     });
 
     return;
+  };
+
+export const forgetPassword =
+  (authService: IAuthService) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = ForgetPasswordValidation.parse(req.body);
+      const { email } = data;
+
+      const response = await authService.forgetPassword(email);
+
+      res.status(200).json({
+        success: true,
+        data: response,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
+export const resetPasswordForm = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const token = req.params.token as string;
+
+    if (!token) {
+      throw new NotFoundError("No token found");
+    }
+
+    res.send(formForgetPassword(token));
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+export const resetPassword =
+  (authService: IAuthService) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = ResetPasswordValidation.parse(req.body);
+
+      const { newPassword, confirmPassword, token } = data;
+
+      if (newPassword !== confirmPassword) {
+        return new ConflictError("Password not matched");
+      }
+
+      await authService.resetPassword(token, newPassword);
+      return res
+        .status(200)
+        .json({ success: true, message: "Password reset successfully" });
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
   };
 
 export const refreshSession =

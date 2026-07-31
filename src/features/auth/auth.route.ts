@@ -13,22 +13,10 @@ import {
   refreshSession,
   loginUserWithBusinessId,
   verifyUserWithOTP,
+  forgetPassword,
+  resetPassword,
+  resetPasswordForm,
 } from "./auth.controller.js";
-
-// const withAuth = (callback: (service: IAuthService) => any) => {
-//   return (req: any, res: any, next: any) => {
-//     const service = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);
-//     return callback(service)(req, res, next);
-//   };
-// };
-// router.post("/register", withAuth(registerUser));
-// router.get("/verify/:token", withAuth(verifyRegisterUser));
-// router.post("/login", withAuth(loginUser));
-// router.get("/user", authHandler, withAuth(getAuthUser));
-// router.delete("/logout", withAuth(logoutUser));
-// router.get("/refresh-session", withAuth(refreshSession));
-// router.post("/loginWithBusinessId", withAuth(loginUserWithBusinessId));
-// router.post("/verifyOTP", withAuth(verifyUserWithOTP)
 
 //register new user
 router.post("/register", (req, res, next) => {
@@ -62,6 +50,20 @@ router.post("/refreshSession", (req, res, next) => {
 });
 
 router.get("/auth-user", authHandler, getAuthUser());
+
+router.post("/forget-password", (req, res, next) => {
+  const authService = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);
+  return forgetPassword(authService)(req, res, next);
+});
+
+router.get("/reset-password/:token", (req, res, next) => {
+  return resetPasswordForm(req, res, next);
+});
+
+router.post("/reset-password", (req, res, next) => {
+  const authService = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);
+  return resetPassword(authService)(req, res, next);
+});
 
 router.post("/logout", authHandler, (req, res, next) => {
   const authService = container.resolve<IAuthService>(TOKENS.AUTH_SERVICE);

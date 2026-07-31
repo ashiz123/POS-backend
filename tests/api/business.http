@@ -25,16 +25,12 @@ POST {{baseUrl}}/business/create
 ### 2. Update Business
 # This references the 'id' field from the 'createBusiness' response
 @businessId = {{BusinessCreate.response.body.data._id}}
-
-
 PUT {{baseUrl}}/business/update/{{businessId}}
 {{headers}}
 
 {
     "name": "ashiz  business 2026 ",
     "address": "137 shorncliff road"
-
- 
 }
 
 

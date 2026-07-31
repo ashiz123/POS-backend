@@ -1,6 +1,7 @@
 import {
   BadRequestError,
   ConflictError,
+  DuplicateEntry,
   NotFoundError,
   UnauthorizedError,
 } from "../../errors/httpErrors.js";
@@ -34,6 +35,8 @@ import { ACCOUNT_TYPE, AUTH_TYPE, sevenHourInSecond } from "./user.constant.js";
 import { baseUrl } from "../../utils/baseUrl.js";
 import { IBusinessRepository } from "../business/business.type.js";
 import { AuthBusinessPayload, AuthUserPayload } from "../../jwt/jwtPayload.js";
+import { sendEmail } from "../../utils/sendEmail.js";
+import { passwordResetLink } from "../../utils/setPasswordForm.js";
 
 @singleton()
 export class AuthService implements IAuthService {
@@ -80,7 +83,7 @@ export class AuthService implements IAuthService {
     );
 
     if (user) {
-      throw new ConflictError("User already exist", "authService.registerUser");
+      throw new DuplicateEntry("User already exist");
     }
 
     const newUserWithToken: IUserProps = {
@@ -129,6 +132,9 @@ export class AuthService implements IAuthService {
       throw new BadRequestError("User is not verified");
     }
 
+    console.log("password", password);
+    console.log("user password", user.password);
+
     const isValid = await this.comparePassword(password, user.password);
     if (!isValid) {
       throw new UnauthorizedError("Invalid credentials");
@@ -153,7 +159,7 @@ export class AuthService implements IAuthService {
 
       if (process.env.NODE_ENV === "production") {
         try {
-          this.notificationEmitter.notify(emailData); //TURNED OFF:to email code to user
+          this.notificationEmitter.notify(emailData); //turned off email for development
         } catch (err) {
           console.log(err);
         }
@@ -287,5 +293,43 @@ export class AuthService implements IAuthService {
     // await this.session.createSession(newAccessToken, payload);
 
     return newAccessToken;
+  }
+
+  async forgetPassword(email: string): Promise<string> {
+    const resetToken = this.cryptoService.createToken();
+    const hashedToken = this.cryptoService.hashToken(resetToken);
+    const frontendURL = process.env.FRONTEND_ORIGIN;
+    console.log(frontendURL);
+    const success = await this.authRepository.storeResetToken(
+      email,
+      hashedToken,
+    );
+    if (!success) {
+      throw new Error("Failed to store reset token in the database.");
+    }
+
+    const subject = "Reset Password";
+    const resetPassword = `${frontendURL}/reset-password/${resetToken}`;
+    const message = `Here is the password reset link. You can use this link only for 15 minutes. Reset your password : ${passwordResetLink(resetPassword)}`;
+    const htmlMessage = passwordResetLink(resetPassword);
+
+    await sendEmail(email, subject, message, htmlMessage);
+
+    return "Reset password link sent successfully";
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const hashedToken = this.cryptoService.hashToken(token);
+
+    const success = await this.authRepository.updatePasswordWithToken(
+      hashedToken,
+      newPassword,
+    );
+
+    if (!success) {
+      throw new Error("Failed to update the password");
+    }
+
+    return true;
   }
 }
