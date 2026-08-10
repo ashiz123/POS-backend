@@ -31,6 +31,12 @@ const categoryRoute = (container: DependencyContainer) => {
         hasPermission("manage_category"),
         uploadImage("categories"),
       ],
+      update: [
+        authHandler,
+        authWithBusinessHandler,
+        hasPermission("manage_category"),
+        uploadImage("categories"),
+      ],
     },
     additionalRoute: [
       {

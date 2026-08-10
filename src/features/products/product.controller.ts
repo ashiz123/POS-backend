@@ -13,6 +13,7 @@ import { NotFoundError, UnauthorizedError } from "../../errors/httpErrors";
 import { IProductController, IProductService } from "./product.type";
 import { inject, injectable } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
+import { isDev } from "../../utils/isDevelopment";
 
 @injectable()
 export class ProductController implements IProductController {
@@ -78,9 +79,19 @@ export class ProductController implements IProductController {
         throw new UnauthorizedError("Logged in user not found");
       }
 
-      const imageUrl = req.file
-        ? `/uploads/products/${req.file.filename}`
-        : undefined;
+      console.log("request body", req.body);
+
+      let imageUrl: string | undefined = undefined;
+
+      if (req.file) {
+        if (isDev) {
+          // Local Multer: saves to disk with req.file.filename
+          imageUrl = `/uploads/products/${req.file.filename}`;
+        } else {
+          // Multer-S3: req.file.location is the full public HTTPS URL from AWS
+          imageUrl = (req.file as Express.MulterS3.File).location;
+        }
+      }
 
       const data: ProductRequest = CreateProductSchema.parse(req.body);
       const { businessId } = req.business;
@@ -116,11 +127,25 @@ export class ProductController implements IProductController {
     try {
       const { id } = req.params as { id: string };
 
+      console.log("body reqyest", req.body);
+
+      let imageUrl: string | undefined = undefined;
+
+      if (req.file) {
+        if (isDev) {
+          // Local Multer: saves to disk with req.file.filename
+          imageUrl = `/uploads/products/${req.file.filename}`;
+        } else {
+          // Multer-S3: req.file.location is the full public HTTPS URL from AWS
+          imageUrl = (req.file as Express.MulterS3.File).location;
+        }
+      }
+
       const validatedData: ProductUpdate = UpdateProductSchema.parse(req.body);
-      const updatedProduct = await this.productService.update(
-        id,
-        validatedData,
-      );
+      const updatedProduct = await this.productService.update(id, {
+        ...validatedData,
+        ...(imageUrl && { imageUrl }),
+      });
       const response: ApiResponse<IProduct | null> = {
         success: true,
         data: updatedProduct,

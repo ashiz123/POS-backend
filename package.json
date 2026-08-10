@@ -34,6 +34,7 @@
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
+    "@types/multer-s3": "^3.0.3",
     "@types/node": "^24.10.0",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.39.1",
@@ -52,6 +53,7 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1106.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.70.1",
     "concurrently": "^9.2.1",
@@ -64,6 +66,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.20.1",
     "multer": "^2.2.0",
+    "multer-s3": "^3.0.1",
     "nodemailer": "^7.0.12",
     "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",

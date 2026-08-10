@@ -27,6 +27,12 @@ export default createCrudRoutes(productController, {
       hasPermission("handle_product"),
       uploadImage("products"),
     ],
+    update: [
+      authHandler,
+      authWithBusinessHandler,
+      hasPermission("handle_product"),
+      uploadImage("products"),
+    ],
   },
 
   additionalRoute: [

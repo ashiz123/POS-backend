@@ -65,6 +65,8 @@ export const ProductSchema = z
       z.string({ message: "Image URL must be a string" }).optional(),
     ),
 
+    image: z.any().optional(),
+
     // 9. Is Active (Boolean: handles string "true"/"false" from FormData -> boolean true/false)
     isActive: z
       .preprocess(
@@ -87,7 +89,11 @@ export const UpdateProductSchema = CreateProductSchema.partial()
   .strict()
   .extend({
     //its for default value, if default value get data the validation wont work. so made them optional
-    isActive: z.boolean().optional(),
+    isActive: z.preprocess((val) => {
+      if (val === "true" || val === true) return true;
+      if (val === "false" || val === false) return false;
+      return val;
+    }, z.boolean().optional()),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided to update",
