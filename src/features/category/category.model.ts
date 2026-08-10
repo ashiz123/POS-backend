@@ -7,7 +7,7 @@ export interface ICategory {
   description?: string;
   isActive: boolean;
   slug: string;
-  // image: string;
+  imageUrl?: string;
   position?: number;
   parentCategoryId?: string | Types.ObjectId | null;
   deletedAt?: Date | null;

@@ -20,6 +20,7 @@ export class ProductRepository
   }
 
   async filterProductByCategoryId(categoryId: string): Promise<IProduct[]> {
+    const currentDate = new Date();
     const matchProduct = {
       $match: {
         categoryId: new Types.ObjectId(categoryId),
@@ -31,7 +32,19 @@ export class ProductRepository
         from: "inventorybatches",
         localField: "_id",
         foreignField: "productId",
-        pipeline: [{ $match: { deletedAt: null } }],
+        pipeline: [
+          {
+            $match: {
+              deletedAt: null,
+              quantity: { $gt: 0 },
+              expiryDate: { $gt: currentDate },
+              // $or: [
+              //   { expirtyDate: null }, //if expiry date can be set null
+              //   { expiryDate: { $gt: currentDate } },
+              // ],
+            },
+          },
+        ],
         as: "batches",
       },
     };

@@ -77,6 +77,11 @@ export class ProductController implements IProductController {
       if (!req.business) {
         throw new UnauthorizedError("Logged in user not found");
       }
+
+      const imageUrl = req.file
+        ? `/uploads/products/${req.file.filename}`
+        : undefined;
+
       const data: ProductRequest = CreateProductSchema.parse(req.body);
       const { businessId } = req.business;
 
@@ -84,7 +89,11 @@ export class ProductController implements IProductController {
         throw new NotFoundError("Business not found to create product");
       }
 
-      const newProductData = { ...data, businessId };
+      const newProductData = {
+        ...data,
+        businessId,
+        ...(imageUrl && { imageUrl }),
+      };
       const newProduct = await this.productService.create(newProductData);
       const response: ApiResponse<IProduct> = {
         success: true,

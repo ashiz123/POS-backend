@@ -1,5 +1,7 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
+
 import cookieParser from "cookie-parser";
 import { corsOptions } from "../middlewares/corsMiddleware.js";
 import { errorHandler } from "../middlewares/errorHandler.js";
@@ -21,6 +23,8 @@ import inventoryBatchWithProductRoute from "../features/inventory/routes/invento
 import inventoryBatchWithoutProductRoute from "../features/inventory/routes/inventoryBatchWithoutProduct.route.js";
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 //webhook route - its always on top
 app.post(
@@ -46,7 +50,6 @@ app.use("/api/user", userRoute);
 app.use("/api/userActivation", userActivationRoute);
 app.use("/api/inventoryBatch", inventoryBatchWithProductRoute);
 app.use("/api/inventoryBatch", inventoryBatchWithoutProductRoute);
-
 app.use("/api/order", orderRoute);
 app.use("/api/terminal", terminalRoute);
 app.use("/api/stripe", stripeTerminalRoute);
@@ -55,7 +58,6 @@ app.use("/api/kiosk", MenuRoutes);
 //fragemented routes
 app.use("/api/dashboard", DashboardRoutes);
 app.use("/api/payment", PaymentRoutes);
-
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });

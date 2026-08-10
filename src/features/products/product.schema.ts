@@ -21,6 +21,11 @@ export const ProductSchema: Schema<IProductDocument> = new Schema(
       required: false,
       trim: true,
     },
+    imageUrl: {
+      type: String,
+      required: false,
+      default: "/uploads/products/default-placeholder.png",
+    },
     slug: {
       type: String,
       required: true,

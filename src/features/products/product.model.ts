@@ -9,6 +9,7 @@ interface ProductBase {
   isActive: boolean;
   lowStock?: number;
   sellPrice: number;
+  imageUrl?: string;
   deletedAt?: Date | null;
 }
 

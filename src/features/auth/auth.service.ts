@@ -204,7 +204,11 @@ export class AuthService implements IAuthService {
       isVerified: true,
     } as unknown as AuthUserPayload;
 
-    const accessToken = await this.jwtSignIn(authData, this.accessSecret, "1m");
+    const accessToken = await this.jwtSignIn(
+      authData,
+      this.accessSecret,
+      "10m",
+    );
     const refreshToken = await this.jwtSignIn(
       authData,
       this.refreshSecret,
@@ -286,7 +290,7 @@ export class AuthService implements IAuthService {
     const newAccessToken = await this.jwtSignIn(
       payload,
       this.accessSecret,
-      "1m",
+      "10m",
     );
 
     //check this line

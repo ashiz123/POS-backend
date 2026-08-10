@@ -6,6 +6,7 @@ unusedTest/
 dist/
 build/
 src/unused
+uploads/
 SETUP.md
 # TypeScript
 *.tsbuildinfo

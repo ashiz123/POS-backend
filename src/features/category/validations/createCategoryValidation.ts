@@ -11,7 +11,20 @@ export const CreateCategorySchema = z
     slug: z.string().slugify().min(3, "Slug is required").trim(),
     description: z.string().optional(),
     position: z.string().optional(),
-    isActive: z.boolean().default(true),
+    isActive: z
+      .preprocess(
+        (val) => {
+          if (val === "true" || val === true) return true;
+          if (val === "false" || val === false) return false;
+          return val;
+        },
+        z.boolean({ message: "isActive must be a boolean (true or false)" }),
+      )
+      .default(true),
+    imageUrl: z.preprocess(
+      (val) => (val === "" || val === null ? undefined : val),
+      z.string({ message: "Image URL must be a string" }).optional(),
+    ),
     parentCategoryId: objectIdSchema.optional().nullable().default(null),
   })
   .strict();

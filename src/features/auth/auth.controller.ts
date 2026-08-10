@@ -117,7 +117,7 @@ export const verifyUserWithOTP =
 
       if (accessToken && refreshToken) {
         // setAuthCookies(res, accessToken, refreshToken);
-        setCookies(res, "accessToken", accessToken, 1);
+        setCookies(res, "accessToken", accessToken, 10);
         setCookies(res, "refreshToken", refreshToken, 7 * 60); //cookies set for 7 hour
         unSetCookies(res, "preAuthToken");
       }
@@ -167,7 +167,7 @@ export const loginUserWithBusinessId =
       };
 
       const result = await authService.selectBusiness(data);
-      setCookies(res, "businessToken", result.token, 300);
+      setCookies(res, "businessToken", result.token, 300); //expires in 5 days
       res.status(200).json({
         success: true,
         message: "User logged in successfully with business",
@@ -283,7 +283,7 @@ export const refreshSession =
     try {
       const newAccessToken: string =
         await authService.generateNewAccessToken(refreshToken);
-      setCookies(res, "accessToken", newAccessToken, 1);
+      setCookies(res, "accessToken", newAccessToken, 10);
 
       return res.status(200).json({
         success: true,

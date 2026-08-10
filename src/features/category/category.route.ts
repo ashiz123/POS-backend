@@ -5,6 +5,7 @@ import { TOKENS } from "../../config/tokens.js";
 import { createCrudRoutes } from "../../shared/baseRouter.js";
 import { authWithBusinessHandler } from "../../middlewares/authWithBusinessHandler.js";
 import { authHandler } from "../../middlewares/authHandler.js";
+import { uploadImage } from "../../middlewares/uploadFile.js";
 
 const categoryRoute = (container: DependencyContainer) => {
   const categoryController = container.resolve<ICategoryController>(
@@ -23,6 +24,12 @@ const categoryRoute = (container: DependencyContainer) => {
         authHandler,
         authWithBusinessHandler,
         hasPermission("view_category"),
+      ],
+      create: [
+        authHandler,
+        authWithBusinessHandler,
+        hasPermission("manage_category"),
+        uploadImage("categories"),
       ],
     },
     additionalRoute: [

@@ -24,10 +24,10 @@ export const CategorySchema = new Schema<ICategoryDocument>(
       trim: true,
       index: true,
     },
-    // image: {
-    //   type: String,
-    //   default: "https://placehold.co/400x400?text=Product+Image",
-    // },
+    imageUrl: {
+      type: String,
+      default: "https://placehold.co/400x400?text=Product+Image",
+    },
 
     isActive: {
       type: Boolean,
@@ -36,6 +36,7 @@ export const CategorySchema = new Schema<ICategoryDocument>(
     },
     position: {
       type: Number,
+      required: false,
       default: 999,
     },
     parentCategoryId: {

@@ -5,6 +5,7 @@ import { authHandler } from "../../middlewares/authHandler";
 import { container } from "tsyringe";
 import { IProductController } from "./product.type";
 import { TOKENS } from "../../config/tokens";
+import { uploadImage } from "../../middlewares/uploadFile";
 
 const productController = container.resolve<IProductController>(
   TOKENS.PRODUCT_CONTROLLER,
@@ -20,6 +21,12 @@ export default createCrudRoutes(productController, {
 
   overrideRoute: {
     list: [authHandler, authWithBusinessHandler, hasPermission("view_product")],
+    create: [
+      authHandler,
+      authWithBusinessHandler,
+      hasPermission("handle_product"),
+      uploadImage("products"),
+    ],
   },
 
   additionalRoute: [

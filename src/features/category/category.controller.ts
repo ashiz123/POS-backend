@@ -53,13 +53,26 @@ export class CategoryController implements ICategoryController {
         throw new NotFoundError("Business Id not found to create the category");
       }
 
+      const imageUrl = req.file
+        ? `/uploads/categories/${req.file.filename}`
+        : undefined;
+
       const data: CategoryRequest = CreateCategorySchema.parse(req.body);
+
+      const position =
+        data.position !== undefined &&
+        data.position !== null &&
+        data.position !== ""
+          ? Number(data.position)
+          : undefined;
 
       const categoryDTO = {
         ...data,
-        position: Number(data.position),
+        position,
         businessId,
+        ...(imageUrl && { imageUrl }),
       };
+
       const newCategory = await this.categoryService.create(categoryDTO);
       const response: ApiResponse<typeof newCategory> = {
         success: true,

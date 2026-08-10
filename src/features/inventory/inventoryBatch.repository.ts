@@ -93,7 +93,6 @@ export class InventoryBatchRepository
     qty: number,
     session?: ClientSession,
   ): Promise<void> {
-    console.log(productId, batchId);
     const result = await this.model.updateOne(
       {
         productId: new Types.ObjectId(productId),
