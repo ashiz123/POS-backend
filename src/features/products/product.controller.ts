@@ -21,6 +21,7 @@ export class ProductController implements IProductController {
     @inject(TOKENS.PRODUCT_SERVICE)
     private productService: IProductService,
   ) {}
+  928;
 
   list = async (
     req: AuthRequestWithBusiness,

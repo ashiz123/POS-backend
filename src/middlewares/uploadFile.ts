@@ -1,31 +1,16 @@
+/* This middleware is currently unused
+The optimize version, that reduce file size is in used
+check uploadCompressFile.ts
+return createUploader(folderName).single(fieldName); Because of this middlware is not using return (req, res, next)
+*/
+
 import multer from "multer";
 import { S3Client } from "@aws-sdk/client-s3";
 import multerS3 from "multer-s3";
 import path from "path";
 import fs from "fs";
 import { isDev } from "../utils/isDevelopment";
-
-// const uploadDir = "uploads/products";
-
-// Ensure upload directory exists
-// if (!fs.existsSync(uploadDir)) {
-//   fs.mkdirSync(uploadDir, { recursive: true });
-// }
-
-// const storage = multer.diskStorage({
-//   // 1. Where to save the files locally
-//   destination: (req, file, cb) => {
-//     cb(null, uploadDir); // Folder path: ./uploads/
-//   },
-
-//   // 2. What to name the file on disk
-//   filename: (req, file, cb) => {
-//     // Generate a unique filename: timestamp-random.ext
-//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-//     const ext = path.extname(file.originalname);
-//     cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-//   },
-// });
+import { userActivationHtml } from "../utils/userActivationHtml";
 
 const fileFilter = (
   req: Express.Request,
@@ -50,6 +35,7 @@ const fileFilter = (
   }
 };
 
+//Storing locally in the backend project
 const getLocalStorage = (subFolder: string) => {
   const uploadDir = path.join(process.cwd(), "uploads", subFolder);
 
@@ -68,14 +54,6 @@ const getLocalStorage = (subFolder: string) => {
       cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
     },
   });
-
-  // return multer({
-  //   storage,
-  //   fileFilter,
-  //   limits: {
-  //     fileSize: 5 * 1024 * 1024, // 5MB limit
-  //   },
-  // });
 };
 
 //multers3 dont use filename instead use like req.file.key, req.file.location
@@ -111,5 +89,15 @@ export const createUploader = (subFolder: string) => {
 };
 
 export const uploadImage = (folderName: string, fieldName = "image") => {
-  return createUploader(folderName).single(fieldName);
+  const multerMiddleware = createUploader(folderName).single(fieldName); //middleware Delegation : If middleware is using another custom middleware
+  //Instead of directly using middleware in the route, the middleware is using another custom middlware, so, this is called middleware Delegation
+  // If multiple middleware use in routes than called middleware chaining
+
+  return (req, res, next) => {
+    multerMiddleware(req, res, async (err) => {
+      if (err) return next(err);
+
+      next();
+    });
+  };
 };

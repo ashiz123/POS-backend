@@ -6,6 +6,7 @@ import { createCrudRoutes } from "../../shared/baseRouter.js";
 import { authWithBusinessHandler } from "../../middlewares/authWithBusinessHandler.js";
 import { authHandler } from "../../middlewares/authHandler.js";
 import { uploadImage } from "../../middlewares/uploadFile.js";
+import { uploadAndOptimizeImage } from "../../middlewares/uploadCompressFile.js";
 
 const categoryRoute = (container: DependencyContainer) => {
   const categoryController = container.resolve<ICategoryController>(
@@ -29,13 +30,13 @@ const categoryRoute = (container: DependencyContainer) => {
         authHandler,
         authWithBusinessHandler,
         hasPermission("manage_category"),
-        uploadImage("categories"),
+        uploadAndOptimizeImage("categories"),
       ],
       update: [
         authHandler,
         authWithBusinessHandler,
         hasPermission("manage_category"),
-        uploadImage("categories"),
+        uploadAndOptimizeImage("categories"),
       ],
     },
     additionalRoute: [

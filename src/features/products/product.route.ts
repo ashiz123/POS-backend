@@ -6,6 +6,7 @@ import { container } from "tsyringe";
 import { IProductController } from "./product.type";
 import { TOKENS } from "../../config/tokens";
 import { uploadImage } from "../../middlewares/uploadFile";
+import { uploadAndOptimizeImage } from "../../middlewares/uploadCompressFile";
 
 const productController = container.resolve<IProductController>(
   TOKENS.PRODUCT_CONTROLLER,
@@ -25,13 +26,13 @@ export default createCrudRoutes(productController, {
       authHandler,
       authWithBusinessHandler,
       hasPermission("handle_product"),
-      uploadImage("products"),
+      uploadAndOptimizeImage("products"),
     ],
     update: [
       authHandler,
       authWithBusinessHandler,
       hasPermission("handle_product"),
-      uploadImage("products"),
+      uploadAndOptimizeImage("products"),
     ],
   },
 

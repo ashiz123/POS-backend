@@ -10,6 +10,7 @@ import { ICategoryController, ICategoryService } from "./category.type";
 import { inject, singleton } from "tsyringe";
 import { TOKENS } from "../../config/tokens";
 import { NotFoundError, UnauthorizedError } from "../../errors/httpErrors";
+import { isDev } from "../../utils/isDevelopment";
 
 @singleton()
 export class CategoryController implements ICategoryController {
@@ -57,6 +58,8 @@ export class CategoryController implements ICategoryController {
         ? `/uploads/categories/${req.file.filename}`
         : undefined;
 
+      console.log("imageUrl", imageUrl);
+
       const data: CategoryRequest = CreateCategorySchema.parse(req.body);
 
       const position =
@@ -98,9 +101,24 @@ export class CategoryController implements ICategoryController {
         throw new NotFoundError("Business Id not found to create the category");
       }
 
+      let imageUrl: string | undefined = undefined;
+
+      if (req.file) {
+        if (isDev) {
+          // Local Multer: saves to disk with req.file.filename
+          imageUrl = `/uploads/categories/${req.file.filename}`;
+        } else {
+          // Multer-S3: req.file.location is the full public HTTPS URL from AWS
+          imageUrl = (req.file as Express.MulterS3.File).location;
+        }
+      }
+
       const { id } = req.params as { id: string };
       const data = UpdateCategorySchema.parse(req.body);
-      const editCatgory = await this.categoryService.update(id, data);
+      const editCatgory = await this.categoryService.update(id,{
+        ...data,
+        ...(imageUrl && { imageUrl }),
+      });
       if (!editCatgory) {
         throw new Error("Category is not updated");
       }

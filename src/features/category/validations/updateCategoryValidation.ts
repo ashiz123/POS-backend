@@ -9,7 +9,11 @@ export const UpdateCategorySchema = CreateCategorySchema.partial() //make option
   .strict() //unknown fields
   .extend({
     //its for default value, if default value get data the validation wont work. so made them optional
-    isActive: z.boolean().optional(),
+    isActive: z.preprocess((val) => {
+      if (val === "true" || val === true) return true;
+      if (val === "false" || val === false) return false;
+      return val;
+    }, z.boolean().optional()),
     parentCategoryId: objectIdSchema.optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
